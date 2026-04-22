@@ -8,6 +8,14 @@ const DigitalEye = dynamic(() => import("@/components/DigitalEye"), { ssr: false
 
 export default function Home() {
   const [bootPhase, setBootPhase] = useState("idle"); // 'idle' | 'booting' | 'complete'
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (bootPhase === "booting") {
@@ -77,7 +85,7 @@ export default function Home() {
       {/* Main Title UI */}
       <div style={{
         position: "absolute",
-        bottom: "12%",
+        bottom: isMobile ? "18%" : "12%",
         left: 0,
         width: "100%",
         display: "flex",
@@ -105,7 +113,7 @@ export default function Home() {
           fontSize: "clamp(10px, 3vw, 16px)",
           letterSpacing: "0.3em",
           textTransform: "uppercase",
-          margin: "0 0 2.5rem 0",
+          margin: isMobile ? "0 0 1.5rem 0" : "0 0 2.5rem 0",
           textShadow: "0 0 10px rgba(0,0,0,0.8)"
         }}>
           Muhammad Hurrera // Systems Architect
@@ -130,10 +138,10 @@ export default function Home() {
             background: "transparent",
             border: "1px solid #00F5FF",
             color: "#00F5FF",
-            padding: "12px 32px",
+            padding: isMobile ? "10px 24px" : "12px 32px",
             borderRadius: "2px",
             fontFamily: "var(--font-jetbrains)",
-            fontSize: "14px",
+            fontSize: isMobile ? "12px" : "14px",
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             cursor: bootPhase === "booting" ? "default" : "pointer",
