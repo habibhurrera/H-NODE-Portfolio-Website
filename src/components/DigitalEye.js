@@ -328,18 +328,18 @@ export default function DigitalEye({ isBooting }) {
       }
 
       // Matrix Rain
-      // THE ONLY CHANGE: reset transform before drawing so rain fills
-      // the full logical screen on high-DPR mobile devices
       if (isBootingRef.current && !matrixActive) {
         matrixActive = true;
         bootStartTime = time;
         const fontSize = 16;
         const columnsCount = Math.floor(width / fontSize);
+        // Use screen.height so columns span the full physical screen on mobile
+        const rainHeight = Math.max(height, window.screen.height);
         matrixColumns = [];
         for (let i = 0; i < columnsCount; i++) {
           matrixColumns.push({
             x: i * fontSize + (fontSize / 2),
-            y: Math.random() * -height * 1.5,
+            y: Math.random() * -rainHeight * 1.5,
             speed: 15 + Math.random() * 25
           });
         }
@@ -347,18 +347,19 @@ export default function DigitalEye({ isBooting }) {
 
       if (matrixActive) {
         const dpr = window.devicePixelRatio || 1;
+        const rainHeight = Math.max(height, window.screen.height);
         ctx.save();
-        ctx.resetTransform();   // clear the DPR scale
-        ctx.scale(dpr, dpr);    // reapply it cleanly so logical px = correct screen px
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
         ctx.font = "bold 14px monospace";
         ctx.textAlign = "center";
         matrixColumns.forEach(col => {
           col.y += col.speed;
-          if (col.y > height + 500) col.y = Math.random() * -200;
+          if (col.y > rainHeight + 500) col.y = Math.random() * -200;
           const tail = 35;
           for (let i = 0; i < tail; i++) {
             const drawY = col.y - (i * 16);
-            if (drawY > height + 20 || drawY < -20) continue;
+            if (drawY > rainHeight + 20 || drawY < -20) continue;
             const char = Math.random() > 0.5 ? "1" : "0";
             const opacity = 1 - (i / tail);
             if (i === 0) {
