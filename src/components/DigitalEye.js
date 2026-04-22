@@ -55,21 +55,30 @@ export default function DigitalEye({ isBooting }) {
       height = window.innerHeight;
       const dpr = window.devicePixelRatio || 1;
 
+      // On mobile, use screen.height so the canvas covers the full physical screen
+      // instead of being clipped by the browser toolbar
+      const isMobile = width < 768;
+      const canvasHeight = isMobile ? window.screen.height : height;
+
       canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.height = canvasHeight * dpr;
       ctx.scale(dpr, dpr);
       canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
+      canvas.style.height = `${canvasHeight}px`;
 
       offscreenCanvas.width = canvas.width;
       offscreenCanvas.height = canvas.height;
       offscreenCtx.scale(dpr, dpr);
 
-      const isMobile = width < 768;
-      cx = width / 2;
-      cy = isMobile ? height * 0.46 : height / 2;
+      // Use canvasHeight for all drawing so everything covers the full canvas
+      height = canvasHeight;
 
-      R = isMobile ? Math.min(width, height) * 0.3 : height * 0.35;
+      // Eye stays centered in the visible viewport, not the extended canvas
+      const visibleHeight = window.innerHeight;
+      cx = width / 2;
+      cy = isMobile ? visibleHeight * 0.46 : visibleHeight / 2;
+
+      R = isMobile ? Math.min(width, visibleHeight) * 0.3 : visibleHeight * 0.35;
       r_pupil = R * 0.28;
       r_iris = R * 0.85;
 
@@ -333,13 +342,11 @@ export default function DigitalEye({ isBooting }) {
         bootStartTime = time;
         const fontSize = 16;
         const columnsCount = Math.floor(width / fontSize);
-        // Use screen.height so columns span the full physical screen on mobile
-        const rainHeight = Math.max(height, window.screen.height);
         matrixColumns = [];
         for (let i = 0; i < columnsCount; i++) {
           matrixColumns.push({
             x: i * fontSize + (fontSize / 2),
-            y: Math.random() * -rainHeight * 1.5,
+            y: Math.random() * -height * 1.5,
             speed: 15 + Math.random() * 25
           });
         }
@@ -347,7 +354,6 @@ export default function DigitalEye({ isBooting }) {
 
       if (matrixActive) {
         const dpr = window.devicePixelRatio || 1;
-        const rainHeight = Math.max(height, window.screen.height);
         ctx.save();
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
@@ -355,11 +361,11 @@ export default function DigitalEye({ isBooting }) {
         ctx.textAlign = "center";
         matrixColumns.forEach(col => {
           col.y += col.speed;
-          if (col.y > rainHeight + 500) col.y = Math.random() * -200;
+          if (col.y > height + 500) col.y = Math.random() * -200;
           const tail = 35;
           for (let i = 0; i < tail; i++) {
             const drawY = col.y - (i * 16);
-            if (drawY > rainHeight + 20 || drawY < -20) continue;
+            if (drawY > height + 20 || drawY < -20) continue;
             const char = Math.random() > 0.5 ? "1" : "0";
             const opacity = 1 - (i / tail);
             if (i === 0) {
