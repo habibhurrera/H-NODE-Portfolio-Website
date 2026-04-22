@@ -1,164 +1,133 @@
 "use client";
 
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, PerspectiveCamera, Stars, Html, useTexture } from "@react-three/drei";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import * as THREE from "three";
 
-const placeholderSkills = [
-  "ESP32", "STM32", "FreeRTOS", "LVGL v9", 
-  "MQTT", "Modbus", "LoRa", "KiCAD", 
-  "Firmware", "Edge AI", "PCB Design", "IoT"
-];
-
+// Lightweight rotating core sphere
 const Core = () => {
   const meshRef = useRef();
-  // Using the generated texture for PCB traces
-  const pcbTexture = useTexture("/textures/pcb_traces.png");
 
-  useFrame((state) => {
-    const { clock } = state;
-    meshRef.current.rotation.y = clock.getElapsedTime() * 0.3;
-    meshRef.current.rotation.x = clock.getElapsedTime() * 0.1;
+  useFrame(({ clock }) => {
+    meshRef.current.rotation.y = clock.getElapsedTime() * 0.25;
+    meshRef.current.rotation.x = clock.getElapsedTime() * 0.08;
   });
 
   return (
     <mesh ref={meshRef}>
-      <sphereGeometry args={[1.5, 64, 64]} />
+      {/* 32x32 instead of 64x64 — 4x fewer vertices */}
+      <sphereGeometry args={[1.5, 32, 32]} />
       <meshStandardMaterial
-        map={pcbTexture}
-        emissiveMap={pcbTexture}
+        color="#001a1f"
         emissive="#00F5FF"
-        emissiveIntensity={2}
-        transparent
-        opacity={0.9}
-        roughness={0.1}
-        metalness={0.8}
+        emissiveIntensity={0.4}
+        roughness={0.2}
+        metalness={0.9}
+        wireframe={true}
       />
     </mesh>
   );
 };
 
-const AtomOrbit = ({ radius, tilt, speed, offset, label }) => {
+// Simple orbit rings — torus geometry only, no HTML labels, no pointLights
+const OrbitRing = ({ radius, tilt, speed }) => {
+  const groupRef = useRef();
   const nodeRef = useRef();
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime() * speed + offset;
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() * speed;
     nodeRef.current.position.x = Math.cos(t) * radius;
     nodeRef.current.position.z = Math.sin(t) * radius;
   });
 
   return (
     <group rotation={tilt}>
-      {/* Elliptical Path visual */}
+      {/* Ring path */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[radius, 0.005, 16, 100]} />
-        <meshBasicMaterial color="#00F5FF" transparent opacity={0.1} />
+        <torusGeometry args={[radius, 0.004, 8, 64]} />
+        <meshBasicMaterial color="#00F5FF" transparent opacity={0.08} />
       </mesh>
 
-      {/* Moving Node */}
+      {/* Moving node — just a small sphere, no lights, no HTML */}
       <group ref={nodeRef}>
         <mesh>
-          <sphereGeometry args={[0.08, 16, 16]} />
+          <sphereGeometry args={[0.06, 8, 8]} />
           <meshBasicMaterial color="#00F5FF" />
-          <pointLight color="#00F5FF" intensity={0.5} distance={2} />
         </mesh>
-        <Html distanceFactor={15} position={[0, 0.25, 0]}>
-          <div className="pointer-events-none select-none px-2 py-0.5 border border-cyan-500/30 bg-black/60 backdrop-blur-sm rounded-sm">
-            <p className="text-[7px] font-[family-name:var(--font-jetbrains)] text-cyan-400 whitespace-nowrap uppercase tracking-widest leading-none">
-              {label}
-            </p>
-          </div>
-        </Html>
       </group>
     </group>
   );
 };
 
-const DataStreams = ({ count = 40 }) => {
-  const pointsRef = useRef();
+// Minimal particle field — 40 points instead of 100
+const Particles = () => {
+  const ref = useRef();
 
-  const particles = useMemo(() => {
-    const temp = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const r = 3 + Math.random() * 5;
+  const positions = useMemo(() => {
+    const arr = new Float32Array(40 * 3);
+    for (let i = 0; i < 40; i++) {
+      const r = 4 + Math.random() * 4;
       const theta = Math.random() * Math.PI * 2;
-      const phi = Math.random() * Math.PI * 2;
-      temp[i * 3] = r * Math.sin(theta) * Math.cos(phi);
-      temp[i * 3 + 1] = r * Math.sin(theta) * Math.sin(phi);
-      temp[i * 3 + 2] = r * Math.cos(theta);
+      const phi = Math.random() * Math.PI;
+      arr[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      arr[i * 3 + 2] = r * Math.cos(phi);
     }
-    return temp;
-  }, [count]);
+    return arr;
+  }, []);
 
-  useFrame((state) => {
-    pointsRef.current.rotation.y += 0.0005;
+  useFrame(() => {
+    ref.current.rotation.y += 0.0003;
   });
 
   return (
-    <points ref={pointsRef}>
+    <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={particles.length / 3}
-          array={particles}
+          count={40}
+          array={positions}
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.02} color="#00F5FF" transparent opacity={0.3} sizeAttenuation />
+      <pointsMaterial size={0.025} color="#00F5FF" transparent opacity={0.25} sizeAttenuation />
     </points>
   );
 };
 
+const ORBITS = [
+  { radius: 2.8, tilt: [0, 0, 0],                       speed: 0.35 },
+  { radius: 3.2, tilt: [Math.PI / 3, 0, 0],             speed: 0.28 },
+  { radius: 3.6, tilt: [-Math.PI / 3, 0, 0],            speed: 0.22 },
+  { radius: 4.0, tilt: [0, 0, Math.PI / 3],             speed: 0.18 },
+  { radius: 4.4, tilt: [Math.PI / 4, Math.PI / 4, 0],  speed: 0.14 },
+];
+
 export default function CyberCore() {
-  const atomTilts = [
-    [0, 0, 0],
-    [Math.PI / 3, 0, 0],
-    [-Math.PI / 3, 0, 0],
-    [0, 0, Math.PI / 3],
-    [Math.PI / 4, Math.PI / 4, 0],
-  ];
-
   return (
-    <div className="absolute inset-0 w-full h-full -z-10 opacity-80">
-      <Canvas shadows>
-        <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[0, 0, 12]} />
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} color="#00F5FF" intensity={2} />
-          
-          <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
-            <Core />
-            
-            {/* Atom Style Orbits */}
-            {placeholderSkills.map((skill, index) => {
-              const tiltIndex = index % atomTilts.length;
-              const radius = 3.5 + (Math.floor(index / atomTilts.length) * 1.5);
-              const speed = 0.3 + (index * 0.02);
-              const offset = (index * Math.PI * 2) / 5; // spread nodes on orbits
+    <div className="absolute inset-0 w-full h-full -z-10 opacity-70">
+      <Canvas
+        dpr={[1, 1.5]}           // cap pixel ratio — biggest single perf win
+        gl={{
+          antialias: false,       // no MSAA — not needed at this scale
+          powerPreference: "high-performance",
+          alpha: true,
+        }}
+        frameloop="always"
+      >
+        {/* Minimal lighting — no shadow casting */}
+        <ambientLight intensity={0.3} />
+        <pointLight position={[8, 8, 8]} color="#00F5FF" intensity={1.5} castShadow={false} />
 
-              return (
-                <AtomOrbit 
-                  key={index}
-                  radius={radius}
-                  tilt={atomTilts[tiltIndex]}
-                  speed={speed}
-                  offset={offset}
-                  label={skill}
-                />
-              );
-            })}
-            
-            <DataStreams count={100} />
-          </Float>
+        <Core />
 
-          <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
-          
-          <EffectComposer>
-            <Bloom luminanceThreshold={0.5} luminanceSmoothing={0.9} intensity={1.5} />
-          </EffectComposer>
-        </Suspense>
+        {ORBITS.map((o, i) => (
+          <OrbitRing key={i} radius={o.radius} tilt={o.tilt} speed={o.speed} />
+        ))}
+
+        <Particles />
+
+        {/* No EffectComposer, no Bloom, no Stars, no Html */}
       </Canvas>
     </div>
   );
