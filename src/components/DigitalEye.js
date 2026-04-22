@@ -33,17 +33,31 @@ export default function DigitalEye({ isBooting }) {
     const offscreenCtx = offscreenCanvas.getContext("2d", { alpha: false });
 
     const handleMouseMove = (e) => {
-      // Normalize mouse coordinates from -1 to 1 based on screen center
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
       const ny = (e.clientY / window.innerHeight) * 2 - 1;
       
-      // Pupil can move up to 12% of the eye's radius
       if (R) {
         targetX = nx * (R * 0.12);
         targetY = ny * (R * 0.12);
       }
     };
+
+    const handleDeviceOrientation = (e) => {
+      if (!e.beta || !e.gamma || !R) return;
+
+      // Gamma is left-to-right tilt (-90 to 90)
+      // Beta is front-to-back tilt (-180 to 180)
+      // We normalize these to a -1 to 1 range based on a ~25 degree tilt
+      const nx = Math.max(-1, Math.min(1, e.gamma / 25));
+      // For beta, we assume the user holds the phone at a ~45 degree angle
+      const ny = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
+
+      targetX = nx * (R * 0.12);
+      targetY = ny * (R * 0.12);
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("deviceorientation", handleDeviceOrientation);
 
     const init = () => {
       width = window.innerWidth;
@@ -342,6 +356,7 @@ export default function DigitalEye({ isBooting }) {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("deviceorientation", handleDeviceOrientation);
       cancelAnimationFrame(animationFrameId);
       clearTimeout(resizeTimer);
     };
