@@ -45,54 +45,76 @@ export default function Home() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center", // vertically center the whole stack
-        gap: 0,
+        justifyContent: "center",
       }}>
-        {/* Eye — fixed size, centered */}
+
+        {/*
+          The DigitalEye canvas always renders at full window size internally.
+          We show it in a tall container but translate it UP so the eye
+          (which is centered in full screen) is fully visible inside our box.
+          translateY(-20%) shifts the canvas up so the bottom of the eye
+          clears the container boundary.
+        */}
         <div style={{
           width: "100%",
-          height: "44vh",
+          height: "50vh",
           flexShrink: 0,
           position: "relative",
+          overflow: "hidden",
           pointerEvents: "none",
         }}>
-          <DigitalEye isBooting={isBooting} />
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            /* Render the canvas taller than container so eye center is visible */
+            height: "100vh",
+            /* Shift canvas up so eye (normally at 50% of full screen) sits
+               in the upper portion of our 50vh box */
+            transform: "translateY(-25%)",
+          }}>
+            <DigitalEye isBooting={isBooting} />
+          </div>
         </div>
 
-        {/* Text + Button stacked right below the eye */}
+        {/* Text + Button stacked directly below eye */}
         <div style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 0,
           opacity: isBooting ? 0 : 1,
           transition: "opacity 0.5s ease",
-          paddingInline: "1.2rem",
-          marginTop: "1.5rem",
+          paddingInline: "1.5rem",
+          marginTop: "1.2rem",
+          width: "100%",
         }}>
           <h1 style={{
             fontFamily: "var(--font-inter)",
             fontWeight: 200,
-            fontSize: "clamp(1.8rem, 9vw, 2.6rem)",
+            /* Scale font so it fits on one line on most phones,
+               wraps gracefully on very small ones */
+            fontSize: "clamp(1.45rem, 7.5vw, 2.2rem)",
             color: "#ffffff",
             letterSpacing: "0.05em",
-            margin: "0 0 0.6rem 0",
+            margin: "0 0 0.5rem 0",
             textShadow: "0 0 20px rgba(0,0,0,0.8)",
             textAlign: "center",
-            lineHeight: 1.1,
-            whiteSpace: "nowrap", // prevent DATA wrapping to next line
+            lineHeight: 1.15,
+            width: "100%",
           }}>
             SEE BEYOND THE DATA
           </h1>
           <p style={{
             fontFamily: "var(--font-jetbrains)",
             color: "rgba(0, 245, 255, 0.6)",
-            fontSize: "9px",
-            letterSpacing: "0.22em",
+            fontSize: "8px",
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
-            margin: "0 0 1.8rem 0",
+            margin: "0 0 1.6rem 0",
             textShadow: "0 0 10px rgba(0,0,0,0.8)",
             textAlign: "center",
+            width: "100%",
           }}>
             Muhammad Hurrera // Systems Architect
           </p>
@@ -122,7 +144,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Boot complete popup */}
         {bootPhase === "complete" && (
           <div style={{
             position: "absolute",
@@ -135,12 +156,12 @@ export default function Home() {
             borderRadius: "4px",
             backdropFilter: "blur(12px)",
             display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem",
-            width: "min(340px, 88vw)",
+            width: "min(320px, 88vw)",
           }}>
             <h2 style={{
               fontFamily: "var(--font-jetbrains)",
               color: "#00F5FF",
-              fontSize: "13px",
+              fontSize: "12px",
               letterSpacing: "0.15em",
               margin: 0,
               textShadow: "0 0 15px rgba(0,245,255,0.6)",
@@ -154,7 +175,7 @@ export default function Home() {
     );
   }
 
-  // ── DESKTOP LAYOUT — 100% ORIGINAL, ZERO CHANGES ─────────────────────────
+  // ── DESKTOP LAYOUT — ORIGINAL, ZERO CHANGES ───────────────────────────────
   return (
     <main style={{
       position: "relative",
@@ -238,7 +259,6 @@ export default function Home() {
           bottom: "6%", left: 0, width: "100%",
           display: "flex", justifyContent: "center",
           zIndex: 11,
-          transition: "opacity 0.5s ease",
           opacity: 1,
         }}>
           <button
