@@ -7,7 +7,7 @@ import * as THREE from "three";
 const SKILLS = [
   "ESP32", "STM32", "FreeRTOS", "MQTT", "LVGL",
   "Next.js", "KiCAD", "n8n", "Docker", "Supabase",
-  "Python", "C / C++", "FreeRTOS", "Grafana", "TypeScript",
+  "Python", "C / C++", "Embedded AI", "Grafana", "TypeScript",
   "Arduino", "Modbus", "LoRa", "Tailwind", "Claude API",
 ];
 
