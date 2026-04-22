@@ -131,11 +131,13 @@ export default function DigitalEye({ isBooting }) {
       rimCtx.scale(dpr, dpr);
       rimCtx.translate(rimSize / 2, rimSize / 2);
       rimCtx.fillStyle = "rgba(255, 255, 255, 0.9)";
-      rimCtx.font = "6px monospace";
+      rimCtx.font = isMobile ? "4px monospace" : "6px monospace";
       rimCtx.textBaseline = "middle";
       rimCtx.textAlign = "center";
       
-      const rimTexts = ["0xA4F1", "SCAN_ID:77B", "RET:0.97", "BIO:9C3F", "SYS:OK", "0x00FF", "V:2.4", "LINK:UP", "NET:SECURE"];
+      const rimTexts = isMobile 
+        ? ["0xA4F1", "SYS:OK", "SCAN:77B", "BIO:9C3F", "LINK:UP", "V:2.4"] 
+        : ["0xA4F1", "SCAN_ID:77B", "RET:0.97", "BIO:9C3F", "SYS:OK", "0x00FF", "V:2.4", "LINK:UP", "NET:SECURE"];
       const rimAngleStep = (Math.PI * 2) / rimTexts.length;
       rimTexts.forEach((text, i) => {
         rimCtx.save();
