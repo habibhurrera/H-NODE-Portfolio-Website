@@ -57,33 +57,22 @@ export default function DigitalEye({ isBooting }) {
 
       canvas.width = width * dpr;
       canvas.height = height * dpr;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
       offscreenCanvas.width = canvas.width;
       offscreenCanvas.height = canvas.height;
-      offscreenCtx.setTransform(1, 0, 0, 1, 0, 0);
       offscreenCtx.scale(dpr, dpr);
 
       const isMobile = width < 768;
-
-      // FIX 1: Center eye properly on mobile
-      // On mobile the eye sits in the full viewport, hero text is overlaid on top
-      // so true center (0.5) looks best — not 0.46
       cx = width / 2;
-      cy = height / 2;
+      cy = isMobile ? height * 0.46 : height / 2;
 
-      // FIX 2: Scale eye to fit mobile screen without overflow
-      R = isMobile
-        ? Math.min(width * 0.38, height * 0.28)
-        : height * 0.35;
-
+      R = isMobile ? Math.min(width, height) * 0.3 : height * 0.35;
       r_pupil = R * 0.28;
       r_iris = R * 0.85;
 
-      // Iris Rings
       irisRings = [];
       const numRings = 10;
       const colors = ["#00F5FF", "#00E5F0", "#00D5E0", "#00C8D8", "#00AABB", "#0090A0", "#008090", "#007080", "#006070", "#005566"];
@@ -122,7 +111,6 @@ export default function DigitalEye({ isBooting }) {
         });
       }
 
-      // Rim Text
       rimSize = (r_pupil + 10) * 2;
       rimCanvas = document.createElement("canvas");
       const rimCtx = rimCanvas.getContext("2d", { alpha: true });
@@ -147,7 +135,6 @@ export default function DigitalEye({ isBooting }) {
         rimCtx.restore();
       });
 
-      // Static Background
       offscreenCtx.fillStyle = "#000000";
       offscreenCtx.fillRect(0, 0, width, height);
 
@@ -252,11 +239,6 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.globalAlpha = 1;
         offscreenCtx.restore();
       }
-
-      // FIX 3: Reset matrix state on re-init so no stale box artifact
-      matrixActive = false;
-      matrixColumns = [];
-      bootStartTime = null;
     };
 
     const render = (time) => {
@@ -264,8 +246,8 @@ export default function DigitalEye({ isBooting }) {
       currentY += (targetY - currentY) * 0.08;
 
       ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.drawImage(offscreenCanvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height, 0, 0, width, height);
+      ctx.resetTransform();
+      ctx.drawImage(offscreenCanvas, 0, 0);
       ctx.restore();
 
       const isMobile = width < 768;
@@ -345,12 +327,13 @@ export default function DigitalEye({ isBooting }) {
         ctx.restore();
       }
 
-      // Matrix Rain — FIX 4: use CSS px width for column calc, not canvas pixel width
+      // Matrix Rain
+      // THE ONLY CHANGE: reset transform before drawing so rain fills
+      // the full logical screen on high-DPR mobile devices
       if (isBootingRef.current && !matrixActive) {
         matrixActive = true;
         bootStartTime = time;
         const fontSize = 16;
-        // Use logical width (not dpr-scaled) so columns fill screen correctly
         const columnsCount = Math.floor(width / fontSize);
         matrixColumns = [];
         for (let i = 0; i < columnsCount; i++) {
@@ -362,17 +345,11 @@ export default function DigitalEye({ isBooting }) {
         }
       }
 
-      if (!isBootingRef.current && matrixActive) {
-        // FIX 5: clear matrix when boot ends so no lingering artifact
-        matrixActive = false;
-        matrixColumns = [];
-      }
-
       if (matrixActive) {
-        // Reset to identity so matrix fills full CSS viewport, not DPR-scaled area
         const dpr = window.devicePixelRatio || 1;
         ctx.save();
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.resetTransform();   // clear the DPR scale
+        ctx.scale(dpr, dpr);    // reapply it cleanly so logical px = correct screen px
         ctx.font = "bold 14px monospace";
         ctx.textAlign = "center";
         matrixColumns.forEach(col => {
