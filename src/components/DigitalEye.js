@@ -264,8 +264,8 @@ export default function DigitalEye({ isBooting }) {
       currentY += (targetY - currentY) * 0.08;
 
       ctx.save();
-      ctx.resetTransform();
-      ctx.drawImage(offscreenCanvas, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(offscreenCanvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height, 0, 0, width, height);
       ctx.restore();
 
       const isMobile = width < 768;
@@ -369,7 +369,10 @@ export default function DigitalEye({ isBooting }) {
       }
 
       if (matrixActive) {
+        // Reset to identity so matrix fills full CSS viewport, not DPR-scaled area
+        const dpr = window.devicePixelRatio || 1;
         ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.font = "bold 14px monospace";
         ctx.textAlign = "center";
         matrixColumns.forEach(col => {
