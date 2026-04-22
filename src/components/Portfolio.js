@@ -41,7 +41,7 @@ const MetricCard = ({ label, value, sub }) => (
 
 const ProjectCard = ({ id, title, client, tech, problem, solution, result, status, link }) => (
   <div className="group relative border border-white/10 bg-white/[0.02] p-5 sm:p-8 hover:bg-cyan-500/[0.04] hover:border-cyan-500/30 transition-all duration-700 h-full flex flex-col will-change-transform">
-    <div className="flex justify-between items-start mb-6 sm:mb-8 gap-3">
+    <div className="flex justify-between items-start mb-4 sm:mb-8 gap-3">
       <div className="flex flex-col text-left min-w-0">
         <span className="text-xs font-[family-name:var(--font-jetbrains)] text-cyan-400 uppercase tracking-[0.4em] mb-2 font-semibold">{id}</span>
         <h4 className="text-xl sm:text-2xl font-semibold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{title}</h4>
@@ -53,18 +53,18 @@ const ProjectCard = ({ id, title, client, tech, problem, solution, result, statu
     </div>
 
     {/* Problem / Solution / Result */}
-    <div className="space-y-4 mb-6 sm:mb-8 text-left flex-1">
-      <div className="flex gap-2 sm:gap-3">
+    <div className="space-y-5 mb-6 sm:mb-8 text-left flex-1">
+      <div className="flex gap-4 sm:gap-3">
         <span className="text-xs font-[family-name:var(--font-jetbrains)] text-gray-400 uppercase tracking-widest pt-0.5 shrink-0 w-14 sm:w-16 font-bold">Problem</span>
         <p className="text-gray-200 text-sm font-normal leading-relaxed">{problem}</p>
       </div>
       <div className="w-full h-[1px] bg-white/10" />
-      <div className="flex gap-2 sm:gap-3">
+      <div className="flex gap-4 sm:gap-3">
         <span className="text-xs font-[family-name:var(--font-jetbrains)] text-cyan-400 uppercase tracking-widest pt-0.5 shrink-0 w-14 sm:w-16 font-bold">Solution</span>
         <p className="text-gray-100 text-sm font-normal leading-relaxed">{solution}</p>
       </div>
       <div className="w-full h-[1px] bg-white/10" />
-      <div className="flex gap-2 sm:gap-3">
+      <div className="flex gap-4 sm:gap-3">
         <span className="text-xs font-[family-name:var(--font-jetbrains)] text-cyan-400 uppercase tracking-widest pt-0.5 shrink-0 w-14 sm:w-16 font-bold">Result</span>
         <p className="text-white text-sm font-semibold leading-relaxed">{result}</p>
       </div>
@@ -273,7 +273,7 @@ export default function Portfolio({ onReset }) {
                 <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ Identity Protocol ]</h2>
               </div>
 
-              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-8 sm:mb-10 leading-[1.1] tracking-tight">
+              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 sm:mb-10 leading-[1.1] tracking-tight">
                 Not just code. <br />
                 <span className="text-gray-400 italic">Engineered Systems.</span>
               </h3>
@@ -317,7 +317,7 @@ export default function Portfolio({ onReset }) {
 
         {/* —— PROJECTS —— */}
         <section id="projects" className="py-20 sm:py-32 lg:py-40 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 sm:mb-20 gap-6 sm:gap-8">
             <div className="text-left">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-[1px] bg-cyan-500" />
@@ -380,7 +380,7 @@ export default function Portfolio({ onReset }) {
         <section id="services" className="py-20 sm:py-32 lg:py-40 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 relative overflow-hidden">
           <div className="hidden lg:block absolute top-0 left-0 text-[12rem] font-bold text-white/[0.01] select-none pointer-events-none transform -translate-x-1/4 -translate-y-1/4 uppercase">Capabilities</div>
 
-          <div className="text-left mb-12 sm:mb-20 relative">
+          <div className="text-left mb-8 sm:mb-20 relative">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-[1px] bg-cyan-500" />
               <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ What I Build For You ]</h2>
@@ -425,7 +425,7 @@ export default function Portfolio({ onReset }) {
                 <div className="w-12 h-[1px] bg-cyan-500" />
                 <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ System Uplink ]</h2>
               </div>
-              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 sm:mb-8 tracking-tight uppercase leading-tight">
+              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 sm:mb-8 tracking-tight uppercase leading-tight">
                 Ready to <span className="text-cyan-400 italic">architect</span> your next system?
               </h3>
               <p className="text-gray-100 text-base font-normal leading-relaxed mb-10 sm:mb-12 max-w-md">
