@@ -228,7 +228,7 @@ export default function Portfolio({ onReset }) {
               </span>
             </div>
 
-            <h1 className="font-[family-name:var(--font-jetbrains)] text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 sm:mb-8 leading-[1.1] max-w-5xl text-white uppercase px-2">
+            <h1 className="font-[family-name:var(--font-jetbrains)] text-xl sm:text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 sm:mb-8 leading-[1.1] max-w-5xl text-white uppercase px-2">
               <ScrambleText text="I build" delay={0.4} duration={0.4} />{" "}
               <span className="text-cyan-400"><ScrambleText text="intelligent systems" delay={0.8} duration={0.6} /></span>{" "}
               <ScrambleText text="that bridge" delay={1.4} duration={0.4} />{" "}
@@ -273,7 +273,7 @@ export default function Portfolio({ onReset }) {
                 <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ Identity Protocol ]</h2>
               </div>
 
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-8 sm:mb-10 leading-[1.1] tracking-tight">
+              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-8 sm:mb-10 leading-[1.1] tracking-tight">
                 Not just code. <br />
                 <span className="text-gray-400 italic">Engineered Systems.</span>
               </h3>
@@ -323,7 +323,7 @@ export default function Portfolio({ onReset }) {
                 <div className="w-12 h-[1px] bg-cyan-500" />
                 <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ Systems Archive ]</h2>
               </div>
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight uppercase">
+              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight uppercase">
                 Deployed <br /> <span className="text-gray-500">Architecture</span>
               </h3>
             </div>
@@ -385,7 +385,7 @@ export default function Portfolio({ onReset }) {
               <div className="w-12 h-[1px] bg-cyan-500" />
               <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ What I Build For You ]</h2>
             </div>
-            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight uppercase">
+            <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight uppercase">
               Services & <br /> <span className="text-gray-400">Capabilities</span>
             </h3>
             <p className="text-gray-200 text-sm font-[family-name:var(--font-jetbrains)] uppercase tracking-widest mt-6 max-w-md font-semibold">
@@ -425,7 +425,7 @@ export default function Portfolio({ onReset }) {
                 <div className="w-12 h-[1px] bg-cyan-500" />
                 <h2 className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.5em] font-bold">[ System Uplink ]</h2>
               </div>
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 sm:mb-8 tracking-tight uppercase leading-tight">
+              <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 sm:mb-8 tracking-tight uppercase leading-tight">
                 Ready to <span className="text-cyan-400 italic">architect</span> your next system?
               </h3>
               <p className="text-gray-100 text-base font-normal leading-relaxed mb-10 sm:mb-12 max-w-md">

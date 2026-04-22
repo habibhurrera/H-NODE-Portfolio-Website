@@ -63,7 +63,8 @@ export default function DigitalEye({ isBooting }) {
       cx = width / 2;
       cy = height / 2;
       
-      R = height * 0.35; 
+      const isMobile = width < 768;
+      R = isMobile ? Math.min(width, height) * 0.3 : height * 0.35; 
       r_pupil = R * 0.28;
       r_iris = R * 0.85; 
 

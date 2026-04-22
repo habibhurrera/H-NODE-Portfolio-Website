@@ -135,6 +135,15 @@ const ORBITS = [
 ];
 
 export default function CyberCore() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="absolute inset-0 w-full h-full -z-10 opacity-80">
       <Canvas
@@ -144,17 +153,19 @@ export default function CyberCore() {
       >
         <ambientLight intensity={0.3} />
         <pointLight position={[8, 8, 8]} color="#00F5FF" intensity={1.5} castShadow={false} />
-        <Core />
-        {ORBITS.map((o, i) => (
-          <OrbitRing
-            key={i}
-            radius={o.radius}
-            tilt={o.tilt}
-            speed={o.speed}
-            skillIndex={i}
-          />
-        ))}
-        <Particles />
+        <group scale={isMobile ? 0.65 : 1}>
+          <Core />
+          {ORBITS.map((o, i) => (
+            <OrbitRing
+              key={i}
+              radius={o.radius}
+              tilt={o.tilt}
+              speed={o.speed}
+              skillIndex={i}
+            />
+          ))}
+          <Particles />
+        </group>
       </Canvas>
     </div>
   );

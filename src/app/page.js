@@ -91,7 +91,7 @@ export default function Home() {
         <h1 style={{
           fontFamily: "var(--font-inter)",
           fontWeight: 200,
-          fontSize: "clamp(2.5rem, 6vw, 64px)",
+          fontSize: "clamp(1.8rem, 8vw, 64px)",
           color: "#ffffff",
           letterSpacing: "0.05em",
           margin: "0 0 1rem 0",
@@ -102,7 +102,7 @@ export default function Home() {
         <p style={{
           fontFamily: "var(--font-jetbrains)",
           color: "rgba(0, 245, 255, 0.6)",
-          fontSize: "clamp(12px, 2vw, 16px)",
+          fontSize: "clamp(10px, 3vw, 16px)",
           letterSpacing: "0.3em",
           textTransform: "uppercase",
           margin: "0 0 2.5rem 0",
