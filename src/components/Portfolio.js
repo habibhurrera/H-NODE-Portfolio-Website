@@ -87,16 +87,9 @@ const ProjectCard = ({ id, title, client, tech, problem, solution, result, statu
   </div>
 );
 
-const ServiceCard = ({ title, desc, skills, cta, price }) => (
+const ServiceCard = ({ title, desc, skills, cta }) => (
   <div className="p-6 sm:p-10 border border-white/10 bg-white/[0.02] hover:bg-cyan-500/[0.04] hover:border-cyan-500/30 transition-all duration-500 group text-left flex flex-col">
-    <div className="flex justify-between items-start mb-4 gap-3">
-      <h4 className="text-xl sm:text-2xl font-semibold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{title}</h4>
-      {price && (
-        <span className="text-xs font-[family-name:var(--font-jetbrains)] text-cyan-400 border border-cyan-500/30 px-2 sm:px-3 py-1 shrink-0 font-bold">
-          {price}
-        </span>
-      )}
-    </div>
+    <h4 className="text-xl sm:text-2xl font-semibold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight mb-4">{title}</h4>
     <p className="text-gray-200 text-base leading-relaxed mb-6 sm:mb-8 font-normal flex-1">{desc}</p>
     <div className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-3 mb-6 sm:mb-8">
       {skills.map((skill, index) => (
@@ -179,7 +172,7 @@ export default function Portfolio({ onReset }) {
 
         <div className="flex items-center gap-3">
           <a href="#contact" className="hidden sm:block px-5 sm:px-8 py-2 sm:py-3 border border-cyan-500/30 text-cyan-400 text-[13px] font-[family-name:var(--font-jetbrains)] uppercase tracking-[0.2em] hover:bg-cyan-500/10 hover:border-cyan-500 transition-all duration-300">
-            Hire Me
+            Work With Me
           </a>
           {/* Hamburger */}
           <button
@@ -212,7 +205,7 @@ export default function Portfolio({ onReset }) {
             onClick={() => setMobileMenuOpen(false)}
             className="mt-4 px-10 py-4 border border-cyan-500/40 text-cyan-400 text-sm font-[family-name:var(--font-jetbrains)] uppercase tracking-[0.3em] hover:bg-cyan-500/10 transition-all"
           >
-            Hire Me
+            Work With Me
           </a>
         </div>
       )}
@@ -246,10 +239,10 @@ export default function Portfolio({ onReset }) {
 
             <div className="hero-reveal-delayed opacity-0 w-24 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent mb-7 sm:mb-10" />
 
-            <p className="hero-reveal-delayed opacity-0 max-w-2xl text-gray-400 font-[family-name:var(--font-inter)] leading-relaxed text-base sm:text-lg md:text-xl mb-4 font-light px-2">
-              Embedded firmware engineer and AI-assisted builder. I ship production IoT systems, LVGL HMIs, and full-stack web products — from PCB to cloud.
+            <p className="hero-reveal-delayed opacity-0 max-w-2xl text-gray-200 font-[family-name:var(--font-inter)] leading-relaxed text-base sm:text-lg md:text-xl mb-4 font-normal px-2">
+              Embedded firmware engineer and AI-assisted builder. I ship production IoT systems, LVGL HMIs, and web products — from hardware to cloud.
             </p>
-            <p className="hero-reveal-delayed opacity-0 max-w-xl text-gray-600 font-[family-name:var(--font-jetbrains)] text-[10px] sm:text-[11px] uppercase tracking-widest mb-8 sm:mb-12 px-4 text-center">
+            <p className="hero-reveal-delayed opacity-0 max-w-xl text-gray-400 font-[family-name:var(--font-jetbrains)] text-[10px] sm:text-[11px] uppercase tracking-widest mb-8 sm:mb-12 px-4 text-center font-semibold">
               ESP32 · STM32 · FreeRTOS · MQTT · Next.js · n8n · KiCAD · LVGL
             </p>
 
@@ -257,16 +250,7 @@ export default function Portfolio({ onReset }) {
               <a href="#projects" className="px-8 sm:px-12 py-4 sm:py-5 bg-cyan-500 text-black font-[family-name:var(--font-jetbrains)] text-[13px] sm:text-[14px] uppercase tracking-[0.2em] font-bold hover:bg-cyan-400 transition-all duration-300 shadow-[0_0_30px_rgba(6,182,212,0.4)] text-center">
                 View My Work
               </a>
-              <a
-                href="https://wa.me/923333934738?text=Hi%20Muhammad%2C%20I%20found%20your%20portfolio%20and%20would%20like%20to%20discuss%20a%20project."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-8 sm:px-12 py-4 sm:py-5 border border-green-500/30 text-green-400 font-[family-name:var(--font-jetbrains)] text-[13px] sm:text-[14px] uppercase tracking-[0.2em] hover:bg-green-500/10 hover:border-green-500 transition-all duration-300 font-bold text-center flex items-center justify-center gap-3"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-                WhatsApp Me
-              </a>
-              <a href="#contact" className="px-8 sm:px-12 py-4 sm:py-5 border border-white/10 text-white font-[family-name:var(--font-jetbrains)] text-[13px] sm:text-[14px] uppercase tracking-[0.2em] hover:bg-white/5 hover:border-white/30 transition-all duration-300 font-bold text-center">
+              <a href="#contact" className="px-8 sm:px-12 py-4 sm:py-5 border border-cyan-500/30 text-cyan-400 font-[family-name:var(--font-jetbrains)] text-[13px] sm:text-[14px] uppercase tracking-[0.2em] hover:bg-cyan-500/10 hover:border-cyan-500 transition-all duration-300 font-bold text-center">
                 Work With Me
               </a>
             </div>
@@ -316,7 +300,7 @@ export default function Portfolio({ onReset }) {
             <div className="grid grid-cols-2 gap-4 sm:gap-6 pt-4 lg:pt-12">
               <MetricCard label="Commercial Deployments" value="5+" sub="Zero hardware revisions" />
               <MetricCard label="Firmware Response Time" value="<100ms" sub="Production benchmark" />
-              <MetricCard label="PCB Designs" value="15+" sub="DFM-ready, zero DRVs" />
+              <MetricCard label="Hardware Designs" value="15+" sub="DFM-ready, zero DRVs" />
               <MetricCard label="Workshops Delivered" value="20+" sub="Industry & university" />
 
               <div className="col-span-2 p-4 sm:p-6 border border-cyan-500/20 bg-cyan-500/[0.05] flex items-center justify-between gap-4">
@@ -415,28 +399,18 @@ export default function Portfolio({ onReset }) {
               desc="Bare-metal and RTOS-based firmware for safety-critical and commercial applications. I own the full cycle: architecture, drivers, ISR design, OTA, and bring-up."
               skills={["ESP32 / STM32", "FreeRTOS Architecture", "ISR & Driver Design", "OTA Update Systems", "UART / I2C / SPI / CAN"]}
               cta="Discuss a firmware project"
-              price="From $500"
             />
             <ServiceCard
               title="IoT System & Cloud Pipeline"
               desc="Self-hosted, vendor-independent telemetry stacks with real-time dashboards and alerting. No recurring SaaS fees. Full sovereignty over your data."
               skills={["MQTT / Modbus / LoRa", "n8n Automation", "Supabase PostgreSQL", "Grafana Analytics", "Docker / Twilio"]}
               cta="Get a pipeline built"
-              price="From $800"
-            />
-            <ServiceCard
-              title="PCB & Hardware Design"
-              desc="End-to-end hardware development from schematic capture to DFM-ready 2-layer PCB layout. Gerber files submitted with zero design-rule violations guaranteed."
-              skills={["KiCAD / EasyEDA", "Schematic Capture", "2-Layer PCB Layout", "DFM Review", "Sensor Integration"]}
-              cta="Start a hardware project"
-              price="From $400"
             />
             <ServiceCard
               title="Web & AI-Assisted Products"
               desc="Production Next.js websites and AI-augmented tools built fast using Claude as a pair-programming collaborator. Clinics, agencies, and SaaS — shipped and deployed."
               skills={["Next.js 14 / TypeScript", "Tailwind + Framer Motion", "Vercel Deployment", "Google Sheets API", "AI Agent Integration"]}
               cta="Build a web product"
-              price="From $300"
             />
           </div>
         </section>
@@ -455,7 +429,7 @@ export default function Portfolio({ onReset }) {
                 Ready to <span className="text-cyan-400 italic">architect</span> your next system?
               </h3>
               <p className="text-gray-100 text-base font-normal leading-relaxed mb-10 sm:mb-12 max-w-md">
-                Whether you need embedded firmware, a self-hosted IoT pipeline, PCB design, or a production website — let's talk scope and timeline.
+                Whether you need embedded firmware, a self-hosted IoT pipeline, hardware design, or a production website — let's talk scope and timeline.
               </p>
 
               <div className="space-y-6 sm:space-y-8">
@@ -523,11 +497,11 @@ export default function Portfolio({ onReset }) {
                       className="w-full bg-black border border-white/20 text-gray-100 text-sm px-4 py-3 focus:outline-none focus:border-cyan-500/70 transition-colors font-[family-name:var(--font-jetbrains)]"
                     >
                       <option value="">Select a service...</option>
-                      <option value="Embedded Firmware — from $500">Embedded Firmware — from $500</option>
-                      <option value="IoT Pipeline — from $800">IoT Pipeline — from $800</option>
-                      <option value="PCB Design — from $400">PCB Design — from $400</option>
-                      <option value="Web / AI Product — from $300">Web / AI Product — from $300</option>
-                      <option value="Full-stack / Custom scope">Full-stack / Custom scope</option>
+                      <option value="Embedded Firmware">Embedded Firmware</option>
+                      <option value="IoT Pipeline">IoT Pipeline</option>
+                      <option value="Hardware Design">Hardware Design</option>
+                      <option value="Web / AI Product">Web / AI Product</option>
+                      <option value="Custom scope">Custom scope</option>
                       <option value="Job opportunity / Remote role">Job opportunity / Remote role</option>
                     </select>
                   </div>
