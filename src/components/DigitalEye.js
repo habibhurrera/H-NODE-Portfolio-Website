@@ -57,23 +57,33 @@ export default function DigitalEye({ isBooting }) {
 
       canvas.width = width * dpr;
       canvas.height = height * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
       offscreenCanvas.width = canvas.width;
       offscreenCanvas.height = canvas.height;
+      offscreenCtx.setTransform(1, 0, 0, 1, 0, 0);
       offscreenCtx.scale(dpr, dpr);
 
       const isMobile = width < 768;
-      cx = width / 2;
-      cy = isMobile ? height * 0.46 : height / 2;
 
-      R = isMobile ? Math.min(width, height) * 0.3 : height * 0.35;
+      // FIX 1: Center eye properly on mobile
+      // On mobile the eye sits in the full viewport, hero text is overlaid on top
+      // so true center (0.5) looks best — not 0.46
+      cx = width / 2;
+      cy = height / 2;
+
+      // FIX 2: Scale eye to fit mobile screen without overflow
+      R = isMobile
+        ? Math.min(width * 0.38, height * 0.28)
+        : height * 0.35;
+
       r_pupil = R * 0.28;
       r_iris = R * 0.85;
 
-      // ── Iris Rings (unchanged) ──────────────────────────────────────────
+      // Iris Rings
       irisRings = [];
       const numRings = 10;
       const colors = ["#00F5FF", "#00E5F0", "#00D5E0", "#00C8D8", "#00AABB", "#0090A0", "#008090", "#007080", "#006070", "#005566"];
@@ -112,7 +122,7 @@ export default function DigitalEye({ isBooting }) {
         });
       }
 
-      // ── Rim Text (unchanged) ────────────────────────────────────────────
+      // Rim Text
       rimSize = (r_pupil + 10) * 2;
       rimCanvas = document.createElement("canvas");
       const rimCtx = rimCanvas.getContext("2d", { alpha: true });
@@ -137,12 +147,11 @@ export default function DigitalEye({ isBooting }) {
         rimCtx.restore();
       });
 
-      // ── Static Background ───────────────────────────────────────────────
+      // Static Background
       offscreenCtx.fillStyle = "#000000";
       offscreenCtx.fillRect(0, 0, width, height);
 
       if (isMobile) {
-        // ── MOBILE: original halo + particles (unchanged) ─────────────────
         const halo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.9, cx, cy, r_iris * 1.6);
         halo.addColorStop(0, "rgba(0, 180, 255, 0.05)");
         halo.addColorStop(1, "rgba(0, 180, 255, 0)");
@@ -184,9 +193,6 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.restore();
 
       } else {
-        // ── DESKTOP: enhanced glow + more/brighter sclera dots ────────────
-
-        // Outer ambient halo — wider and brighter than original
         const outerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.7, cx, cy, r_iris * 2.2);
         outerHalo.addColorStop(0, "rgba(0, 200, 255, 0.12)");
         outerHalo.addColorStop(0.4, "rgba(0, 180, 255, 0.07)");
@@ -194,7 +200,6 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.fillStyle = outerHalo;
         offscreenCtx.fillRect(0, 0, width, height);
 
-        // Second inner glow ring just outside the iris — new
         const innerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.85, cx, cy, r_iris * 1.2);
         innerHalo.addColorStop(0, "rgba(0, 245, 255, 0.18)");
         innerHalo.addColorStop(1, "rgba(0, 245, 255, 0)");
@@ -203,8 +208,6 @@ export default function DigitalEye({ isBooting }) {
 
         const ellipseW = R * 1.6;
         const ellipseH = R * 0.85;
-
-        // More particles: 18000 vs original 7000
         const numParticles = 18000;
 
         offscreenCtx.save();
@@ -213,49 +216,23 @@ export default function DigitalEye({ isBooting }) {
         for (let i = 0; i < numParticles; i++) {
           const x = (Math.random() * 2 - 1) * ellipseW;
           const y = (Math.random() * 2 - 1) * ellipseH;
-
           const maxY = (1 - Math.pow(x / ellipseW, 2)) * ellipseH;
           if (Math.abs(y) > maxY) continue;
-
           const distFromCenter = Math.sqrt(x * x + y * y);
           if (distFromCenter < r_iris) continue;
-
           const edgeDist = distFromCenter - r_iris;
           const maxDist = ellipseW - r_iris;
           const normalizedDist = Math.max(0, Math.min(1, edgeDist / maxDist));
-
-          // Higher keepProb = denser field (was 0.6 - 0.45x, now 0.82 - 0.5x)
           const keepProb = 0.82 - (0.5 * normalizedDist);
           if (Math.random() > keepProb) continue;
-
-          // Dots are more dominant (was 0.35 threshold, now 0.25)
           const isDot = Math.random() > 0.25;
-
-          // Dots bigger: max 5.5 vs original 3.5
-          const size = isDot
-            ? Math.max(0.8, 5.5 * (1 - normalizedDist * 0.7))
-            : (5 + Math.random() * 2);
-
-          // More opaque: 0.35 + 0.55x vs original 0.2 + 0.35x
+          const size = isDot ? Math.max(0.8, 5.5 * (1 - normalizedDist * 0.7)) : (5 + Math.random() * 2);
           const opacity = 0.35 + 0.55 * (1 - normalizedDist);
-
-          // Brighter, more saturated colors — added pure white-cyan for glow dots
-          const scleraColors = [
-            "#00F5FF", // bright cyan — new
-            "#00E8FF", // new
-            "#00C8D8",
-            "#00AABB",
-            "#00D5E8", // new mid-bright
-            "#0090A0",
-            "#007080",
-          ];
+          const scleraColors = ["#00F5FF", "#00E8FF", "#00C8D8", "#00AABB", "#00D5E8", "#0090A0", "#007080"];
           const color = scleraColors[Math.floor(Math.random() * scleraColors.length)];
-
           offscreenCtx.globalAlpha = opacity;
           offscreenCtx.fillStyle = color;
-
           if (isDot) {
-            // Add a soft glow shadow on larger dots
             if (size > 2.5) {
               offscreenCtx.shadowBlur = size * 3;
               offscreenCtx.shadowColor = "#00F5FF";
@@ -275,6 +252,11 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.globalAlpha = 1;
         offscreenCtx.restore();
       }
+
+      // FIX 3: Reset matrix state on re-init so no stale box artifact
+      matrixActive = false;
+      matrixColumns = [];
+      bootStartTime = null;
     };
 
     const render = (time) => {
@@ -286,7 +268,6 @@ export default function DigitalEye({ isBooting }) {
       ctx.drawImage(offscreenCanvas, 0, 0);
       ctx.restore();
 
-      // Dynamic inner glow — brighter on desktop
       const isMobile = width < 768;
       const glowIntensity = isMobile ? 0.06 : 0.14;
       const innerGlow = ctx.createRadialGradient(
@@ -298,7 +279,6 @@ export default function DigitalEye({ isBooting }) {
       ctx.fillStyle = innerGlow;
       ctx.fillRect(0, 0, width, height);
 
-      // Extra outer glow pulse on desktop only
       if (!isMobile) {
         const pulse = 0.04 + Math.sin(time * 0.001) * 0.02;
         const outerGlow = ctx.createRadialGradient(cx, cy, r_iris * 0.9, cx, cy, r_iris * 1.5);
@@ -332,7 +312,7 @@ export default function DigitalEye({ isBooting }) {
 
       ctx.restore();
 
-      // ── BLINK (unchanged) ──────────────────────────────────────────────
+      // Blink
       const cycleDuration = 2000;
       const currentCycle = time % cycleDuration;
       let blinkOpenness = 1.0;
@@ -365,11 +345,12 @@ export default function DigitalEye({ isBooting }) {
         ctx.restore();
       }
 
-      // ── MATRIX RAIN (unchanged) ────────────────────────────────────────
+      // Matrix Rain — FIX 4: use CSS px width for column calc, not canvas pixel width
       if (isBootingRef.current && !matrixActive) {
         matrixActive = true;
         bootStartTime = time;
         const fontSize = 16;
+        // Use logical width (not dpr-scaled) so columns fill screen correctly
         const columnsCount = Math.floor(width / fontSize);
         matrixColumns = [];
         for (let i = 0; i < columnsCount; i++) {
@@ -379,6 +360,12 @@ export default function DigitalEye({ isBooting }) {
             speed: 15 + Math.random() * 25
           });
         }
+      }
+
+      if (!isBootingRef.current && matrixActive) {
+        // FIX 5: clear matrix when boot ends so no lingering artifact
+        matrixActive = false;
+        matrixColumns = [];
       }
 
       if (matrixActive) {
@@ -405,6 +392,7 @@ export default function DigitalEye({ isBooting }) {
             ctx.fillText(char, col.x, drawY);
           }
         });
+        ctx.shadowBlur = 0;
         ctx.restore();
       }
 
