@@ -33,7 +33,7 @@ export default function Home() {
     return <Portfolio onReset={() => setBootPhase("idle")} />;
   }
 
-  // ── MOBILE LAYOUT ─────────────────────────────────────────────────────────
+  // —— MOBILE LAYOUT ——
   if (isMobile) {
     return (
       <main style={{
@@ -42,58 +42,35 @@ export default function Home() {
         height: "100dvh",
         backgroundColor: "#000000",
         overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
       }}>
 
-        {/*
-          The DigitalEye canvas always renders at full window size internally.
-          We show it in a tall container but translate it UP so the eye
-          (which is centered in full screen) is fully visible inside our box.
-          translateY(-20%) shifts the canvas up so the bottom of the eye
-          clears the container boundary.
-        */}
+        {/* Eye always fills the full screen — no clipping container */}
         <div style={{
-          width: "100%",
-          height: "50vh",
-          flexShrink: 0,
-          position: "relative",
-          overflow: "hidden",
+          position: "absolute",
+          inset: 0,
           pointerEvents: "none",
         }}>
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            /* Render the canvas taller than container so eye center is visible */
-            height: "100vh",
-            /* Shift canvas up so eye (normally at 50% of full screen) sits
-               in the upper portion of our 50vh box */
-            transform: "translateY(-25%)",
-          }}>
-            <DigitalEye isBooting={isBooting} />
-          </div>
+          <DigitalEye isBooting={isBooting} />
         </div>
 
-        {/* Text + Button stacked directly below eye */}
+        {/* Text + Button — shown when not booting, centered in lower portion */}
         <div style={{
+          position: "absolute",
+          bottom: "8%",
+          left: 0,
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           opacity: isBooting ? 0 : 1,
           transition: "opacity 0.5s ease",
           paddingInline: "1.5rem",
-          marginTop: "1.2rem",
-          width: "100%",
+          zIndex: 10,
+          pointerEvents: "none",
         }}>
           <h1 style={{
             fontFamily: "var(--font-inter)",
             fontWeight: 200,
-            /* Scale font so it fits on one line on most phones,
-               wraps gracefully on very small ones */
             fontSize: "clamp(1.45rem, 7.5vw, 2.2rem)",
             color: "#ffffff",
             letterSpacing: "0.05em",
@@ -118,11 +95,24 @@ export default function Home() {
           }}>
             Muhammad Hurrera // Systems Architect
           </p>
+        </div>
 
-          {bootPhase !== "complete" && (
+        {/* Button */}
+        {bootPhase !== "complete" && (
+          <div style={{
+            position: "absolute",
+            bottom: "5%",
+            left: 0,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            zIndex: 11,
+            opacity: isBooting ? 0 : 1,
+            transition: "opacity 0.5s ease",
+            pointerEvents: isBooting ? "none" : "auto",
+          }}>
             <button
               style={{
-                pointerEvents: bootPhase === "booting" ? "none" : "auto",
                 background: "transparent",
                 border: "1px solid #00F5FF",
                 color: "#00F5FF",
@@ -132,18 +122,19 @@ export default function Home() {
                 fontSize: "12px",
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                cursor: bootPhase === "booting" ? "default" : "pointer",
+                cursor: "pointer",
                 transition: "all 0.3s ease",
                 boxShadow: "inset 0 0 10px rgba(0,245,255,0.1), 0 0 10px rgba(0,245,255,0.1)",
                 whiteSpace: "nowrap",
               }}
               onClick={() => setBootPhase("booting")}
             >
-              {bootPhase === "booting" ? "SYSTEM BOOTING..." : "INITIALIZE SYSTEM"}
+              INITIALIZE SYSTEM
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
+        {/* Boot complete popup */}
         {bootPhase === "complete" && (
           <div style={{
             position: "absolute",
@@ -175,7 +166,7 @@ export default function Home() {
     );
   }
 
-  // ── DESKTOP LAYOUT — ORIGINAL, ZERO CHANGES ───────────────────────────────
+  // —— DESKTOP LAYOUT — ZERO CHANGES ——
   return (
     <main style={{
       position: "relative",
