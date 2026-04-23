@@ -133,13 +133,17 @@ export default function Portfolio({ onReset }) {
     return () => { document.body.style.overflow = ""; };
   }, [mobileMenuOpen]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!formState.name || !formState.email || !formState.message) return;
     setFormStatus("sending");
     const subject = encodeURIComponent(`Project Inquiry from ${formState.name}`);
-    const body = encodeURIComponent(`Name: ${formState.name}\nEmail: ${formState.email}\nBudget: ${formState.budget}\n\n${formState.message}`);
-    window.open(`mailto:habibhurrera@gmail.com?subject=${subject}&body=${body}`);
-    setFormStatus("sent");
+    const body = encodeURIComponent(
+      `Name: ${formState.name}\nEmail: ${formState.email}\nService: ${formState.budget}\n\nProject Brief:\n${formState.message}`
+    );
+    // Use location.href — never blocked by browsers unlike window.open()
+    window.location.href = `mailto:habibhurrera@gmail.com?subject=${subject}&body=${body}`;
+    setTimeout(() => setFormStatus("sent"), 500);
   };
 
   const navLinks = [
