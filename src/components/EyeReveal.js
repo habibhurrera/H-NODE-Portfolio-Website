@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 const PHASE_LINE_DRAW = 2000;
 const PHASE_LINE_HOLD = 200;
-const PHASE_EYE_OPEN = 1000;
-const PHASE_FADE_OUT = 400;
+const PHASE_EYE_OPEN = 1100;
+const PHASE_FADE_OUT = 500;
 
-export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX }) {
+export default function EyeReveal({ onComplete }) {
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const rafRef = useRef(null);
@@ -28,35 +28,40 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
     canvas.style.height = `${H}px`;
     ctx.scale(dpr, dpr);
 
+    // ── Exact same geometry as DigitalEye.js ─────────────────────────────
+    const isMobile = W < 768;
     const cx = W / 2;
-    const cy = eyeCenterY || H * 0.46;
-    const rx = eyeRadiusX || Math.min(W, H) * 0.3 * 1.6;
-    // Vertical half-height of the eye shape
-    const ry = rx * 0.65;
+    const cy = isMobile ? H * 0.46 : H / 2;
+    const R = isMobile ? Math.min(W, H) * 0.3 : H * 0.35;
+    // Sclera ellipse — matches DigitalEye exactly
+    const rx = R * 1.6;   // ellipseW  (horizontal half-width)
+    const ry = R * 0.85;  // ellipseH  (vertical half-height)
 
     const totalDuration = PHASE_LINE_DRAW + PHASE_LINE_HOLD + PHASE_EYE_OPEN + PHASE_FADE_OUT;
 
     const easeInOut = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
-    // Draw the eye-shaped eyelid path
-    // top=true draws the upper half, top=false draws lower half
-    // openAmount: 0 = closed (flat line), 1 = fully open (full curve)
-    const eyePath = (top, openAmount) => {
+    // Build SVG-style ellipse clip-path string for CSS (used externally if needed)
+    // Canvas eye shape: true ellipse via bezier approximation (kappa = 0.5523)
+    const K = 0.5523;
+
+    // Draw the upper or lower half of the sclera ellipse
+    // openAmt 0 = flat horizontal line, 1 = full ellipse half
+    const drawEyeHalf = (top, openAmt) => {
+      const ryScaled = ry * openAmt;
       ctx.beginPath();
       ctx.moveTo(cx - rx, cy);
       if (top) {
-        // Upper eyelid curves UP
         ctx.bezierCurveTo(
-          cx - rx * 0.45, cy - ry * openAmount * 1.3,
-          cx + rx * 0.45, cy - ry * openAmount * 1.3,
+          cx - rx + rx * K, cy - ryScaled * K * 1.8,
+          cx + rx - rx * K, cy - ryScaled * K * 1.8,
           cx + rx, cy
         );
       } else {
-        // Lower eyelid curves DOWN
         ctx.bezierCurveTo(
-          cx - rx * 0.45, cy + ry * openAmount * 1.3,
-          cx + rx * 0.45, cy + ry * openAmount * 1.3,
+          cx - rx + rx * K, cy + ryScaled * K * 1.2,
+          cx + rx - rx * K, cy + ryScaled * K * 1.2,
           cx + rx, cy
         );
       }
@@ -75,101 +80,120 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
         ? Math.min((afterHold - PHASE_EYE_OPEN) / PHASE_FADE_OUT, 1)
         : 0;
 
-      const alpha = 1 - fadeProgress;
+      const overlayAlpha = 1 - fadeProgress;
       const openEased = easeOut(openProgress);
 
-      // Report progress to parent for clipping
-      onUpdate && onUpdate({ openAmount: openEased, alpha });
-
-      if (alpha > 0) {
-        // ── TOP eyelid black mask ──────────────────────────────────────────
+      if (overlayAlpha > 0.01) {
+        // ── TOP black mask — everything above the upper eye curve ──────────
         ctx.save();
         ctx.beginPath();
-        // Fill everything ABOVE the upper eyelid curve
         ctx.moveTo(0, 0);
         ctx.lineTo(W, 0);
         ctx.lineTo(W, cy);
         ctx.lineTo(cx + rx, cy);
-        // Upper curve (reversed — right to left)
+        // upper curve reversed (right → left)
+        const ryTop = ry * openEased;
         ctx.bezierCurveTo(
-          cx + rx * 0.45, cy - ry * openEased * 1.3,
-          cx - rx * 0.45, cy - ry * openEased * 1.3,
+          cx + rx - rx * K, cy - ryTop * K * 1.8,
+          cx - rx + rx * K, cy - ryTop * K * 1.8,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
         ctx.closePath();
-        ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+        ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
         ctx.fill();
 
-        // ── BOTTOM eyelid black mask ───────────────────────────────────────
+        // ── BOTTOM black mask — everything below the lower eye curve ───────
         ctx.beginPath();
-        // Fill everything BELOW the lower eyelid curve
         ctx.moveTo(0, H);
         ctx.lineTo(W, H);
         ctx.lineTo(W, cy);
         ctx.lineTo(cx + rx, cy);
-        // Lower curve (reversed — right to left)
+        // lower curve reversed (right → left)
+        const ryBot = ry * openEased;
         ctx.bezierCurveTo(
-          cx + rx * 0.45, cy + ry * openEased * 1.3,
-          cx - rx * 0.45, cy + ry * openEased * 1.3,
+          cx + rx - rx * K, cy + ryBot * K * 1.2,
+          cx - rx + rx * K, cy + ryBot * K * 1.2,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
         ctx.closePath();
-        ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+        ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
         ctx.fill();
         ctx.restore();
 
-        // ── Glowing line / eyelid edges ───────────────────────────────────
+        // ── LEFT corner triangle (pointed corner) ──────────────────────────
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(cx - rx, 0);
+        ctx.lineTo(cx - rx, H);
+        ctx.lineTo(0, H);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+        ctx.fill();
+        ctx.restore();
+
+        // ── RIGHT corner triangle ───────────────────────────────────────────
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx + rx, 0);
+        ctx.lineTo(W, 0);
+        ctx.lineTo(W, H);
+        ctx.lineTo(cx + rx, H);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+        ctx.fill();
+        ctx.restore();
+
+        // ── Glowing eyelid edges ───────────────────────────────────────────
         const startX = cx - rx;
         const endX = cx + rx;
         const drawnX = startX + (endX - startX) * easeInOut(lineProgress);
-        const lineAlpha = openProgress > 0.6
-          ? Math.max(0, 1 - (openProgress - 0.6) / 0.4) * alpha
-          : alpha;
+        const lineAlpha = openProgress > 0.55
+          ? Math.max(0, 1 - (openProgress - 0.55) / 0.45) * overlayAlpha
+          : overlayAlpha;
 
-        if (drawnX > startX && lineAlpha > 0) {
-          // Clip line drawing to only the portion drawn so far
+        if (drawnX > startX && lineAlpha > 0.01) {
+          // Clip glow to drawn portion only
           ctx.save();
           ctx.beginPath();
           ctx.rect(startX, 0, drawnX - startX, H);
           ctx.clip();
 
-          // TOP eyelid glow edge
-          eyePath(true, openEased);
+          // Top glow
+          drawEyeHalf(true, openEased);
           ctx.lineWidth = 10;
-          ctx.strokeStyle = `rgba(0,245,255,${0.35 * lineAlpha})`;
+          ctx.strokeStyle = `rgba(0,245,255,${0.3 * lineAlpha})`;
           ctx.stroke();
-
-          eyePath(true, openEased);
+          drawEyeHalf(true, openEased);
           ctx.lineWidth = 2;
           ctx.strokeStyle = `rgba(0,245,255,${lineAlpha})`;
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 14;
           ctx.shadowColor = "#00F5FF";
           ctx.stroke();
           ctx.shadowBlur = 0;
 
-          // BOTTOM eyelid glow edge
-          eyePath(false, openEased);
-          ctx.lineWidth = 8;
-          ctx.strokeStyle = `rgba(0,245,255,${0.25 * lineAlpha})`;
+          // Bottom glow
+          drawEyeHalf(false, openEased);
+          ctx.lineWidth = 7;
+          ctx.strokeStyle = `rgba(0,245,255,${0.2 * lineAlpha})`;
           ctx.stroke();
-
-          eyePath(false, openEased);
+          drawEyeHalf(false, openEased);
           ctx.lineWidth = 1.5;
-          ctx.strokeStyle = `rgba(0,245,255,${lineAlpha * 0.8})`;
+          ctx.strokeStyle = `rgba(0,245,255,${lineAlpha * 0.75})`;
           ctx.stroke();
 
           ctx.restore();
 
-          // Leading point while line is drawing
-          if (lineProgress < 1) {
-            const ptGrad = ctx.createRadialGradient(drawnX, cy, 0, drawnX, cy, 16);
+          // Leading point (only while drawing, before eye opens)
+          if (lineProgress < 1 && openProgress === 0) {
+            const ptGrad = ctx.createRadialGradient(drawnX, cy, 0, drawnX, cy, 18);
             ptGrad.addColorStop(0, `rgba(255,255,255,${lineAlpha})`);
-            ptGrad.addColorStop(0.3, `rgba(0,245,255,${0.9 * lineAlpha})`);
+            ptGrad.addColorStop(0.25, `rgba(0,245,255,${0.9 * lineAlpha})`);
             ptGrad.addColorStop(1, `rgba(0,245,255,0)`);
             ctx.beginPath();
-            ctx.arc(drawnX, cy, 16, 0, Math.PI * 2);
+            ctx.arc(drawnX, cy, 18, 0, Math.PI * 2);
             ctx.fillStyle = ptGrad;
             ctx.fill();
           }
