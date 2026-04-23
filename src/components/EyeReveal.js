@@ -48,15 +48,15 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
       if (top) {
         // Upper eyelid curves UP
         ctx.bezierCurveTo(
-          cx - rx * 0.45, cy - ry * openAmount * 1.1,
-          cx + rx * 0.45, cy - ry * openAmount * 1.1,
+          cx - rx * 0.45, cy - ry * openAmount * 1.3,
+          cx + rx * 0.45, cy - ry * openAmount * 1.3,
           cx + rx, cy
         );
       } else {
         // Lower eyelid curves DOWN
         ctx.bezierCurveTo(
-          cx - rx * 0.45, cy + ry * openAmount * 0.9,
-          cx + rx * 0.45, cy + ry * openAmount * 0.9,
+          cx - rx * 0.45, cy + ry * openAmount * 1.3,
+          cx + rx * 0.45, cy + ry * openAmount * 1.3,
           cx + rx, cy
         );
       }

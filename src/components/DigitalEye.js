@@ -80,7 +80,7 @@ export default function DigitalEye({ isBooting }) {
 
       R = isMobile ? Math.min(width, visibleHeight) * 0.3 : visibleHeight * 0.35;
       r_pupil = R * 0.28;
-      r_iris = R * 0.85;
+      r_iris = R * 0.75;
 
       irisRings = [];
       const numRings = 10;
@@ -154,8 +154,8 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.fillStyle = halo;
         offscreenCtx.fillRect(0, 0, width, height);
 
-        const ellipseW = R * 1.8;
-        const ellipseH = R * 0.85;
+        const ellipseW = R * 1.7;
+        const ellipseH = R * 0.75;
         offscreenCtx.save();
         offscreenCtx.translate(cx, cy);
 
@@ -202,8 +202,8 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.fillStyle = innerHalo;
         offscreenCtx.fillRect(0, 0, width, height);
 
-        const ellipseW = R * 1.8;
-        const ellipseH = R * 0.85;
+        const ellipseW = R * 1.7;
+        const ellipseH = R * 0.75;
         const numParticles = 22000;
 
         offscreenCtx.save();
