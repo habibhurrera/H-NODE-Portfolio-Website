@@ -46,116 +46,124 @@ export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
 
       ctx.clearRect(0, 0, W, H);
 
-      // ── Black overlay ──────────────────────────────────────────────────────
-      // During eye-open phase we use two black rectangles (top/bottom eyelids)
-      // that pull apart. Before that, solid black.
-
+      // ── Black overlay + eyelids ────────────────────────────────────────────
       const lineDrawProgress = Math.min(elapsed / PHASE_LINE_DRAW, 1);
-      const afterLineDraw = elapsed - PHASE_LINE_DRAW;
       const afterHold = elapsed - PHASE_LINE_DRAW - PHASE_LINE_HOLD;
       const eyeOpenProgress = afterHold > 0 ? Math.min(afterHold / PHASE_EYE_OPEN, 1) : 0;
       const fadeProgress = afterHold > PHASE_EYE_OPEN
         ? Math.min((afterHold - PHASE_EYE_OPEN) / PHASE_FADE_OUT, 1)
         : 0;
 
+      const overlayAlpha = 1 - fadeProgress;
+      const openEased = easeOut(eyeOpenProgress);
+      const maxGap = cy + rx * 0.55;
+
+      const topLidBottom = lineY - openEased * maxGap;
+      const bottomLidTop = lineY + openEased * maxGap;
+
+      // Top black lid
+      ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+      ctx.fillRect(0, 0, W, topLidBottom);
+
+      // Bottom black lid
+      ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+      ctx.fillRect(0, bottomLidTop, W, H - bottomLidTop);
+
+      // Curved top lid edge
+      ctx.beginPath();
+      ctx.moveTo(cx - rx, topLidBottom);
+      ctx.quadraticCurveTo(cx, topLidBottom - openEased * rx * 0.35, cx + rx, topLidBottom);
+      ctx.lineTo(cx + rx, 0);
+      ctx.lineTo(cx - rx, 0);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+      ctx.fill();
+
+      // Curved bottom lid edge
+      ctx.beginPath();
+      ctx.moveTo(cx - rx, bottomLidTop);
+      ctx.quadraticCurveTo(cx, bottomLidTop + openEased * rx * 0.2, cx + rx, bottomLidTop);
+      ctx.lineTo(cx + rx, H);
+      ctx.lineTo(cx - rx, H);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
+      ctx.fill();
+
+      // ── Glowing line / eyelid edge ────────────────────────────────────────
+      // Line draws during lineDrawProgress, then becomes the eyelid split edge
       if (fadeProgress < 1) {
-        const overlayAlpha = 1 - fadeProgress;
-
-        if (eyeOpenProgress === 0) {
-          // Solid black before eye opens
-          ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
-          ctx.fillRect(0, 0, W, H);
-        } else {
-          // Two eyelid halves pulling apart
-          // Gap grows as a quadratic curve (eye shape)
-          const openEased = easeOut(eyeOpenProgress);
-          const maxGap = cy + rx * 0.55; // how far lids travel
-
-          // Top lid moves up
-          const topLidBottom = lineY - openEased * maxGap;
-          // Bottom lid moves down
-          const bottomLidTop = lineY + openEased * maxGap;
-
-          // Draw top black rectangle
-          ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
-          ctx.fillRect(0, 0, W, topLidBottom);
-
-          // Draw bottom black rectangle
-          ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
-          ctx.fillRect(0, bottomLidTop, W, H - bottomLidTop);
-
-          // Curved eyelid edges — top lid bottom edge
-          ctx.beginPath();
-          ctx.moveTo(cx - rx, topLidBottom);
-          ctx.quadraticCurveTo(cx, topLidBottom - openEased * rx * 0.35, cx + rx, topLidBottom);
-          ctx.lineTo(cx + rx, 0);
-          ctx.lineTo(cx - rx, 0);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
-          ctx.fill();
-
-          // Curved eyelid edges — bottom lid top edge
-          ctx.beginPath();
-          ctx.moveTo(cx - rx, bottomLidTop);
-          ctx.quadraticCurveTo(cx, bottomLidTop + openEased * rx * 0.2, cx + rx, bottomLidTop);
-          ctx.lineTo(cx + rx, H);
-          ctx.lineTo(cx - rx, H);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
-          ctx.fill();
-        }
-      }
-
-      // ── Glowing line ───────────────────────────────────────────────────────
-      if (eyeOpenProgress < 0.6 && fadeProgress === 0) {
-        const lineAlpha = eyeOpenProgress > 0
-          ? Math.max(0, 1 - eyeOpenProgress / 0.6)
-          : 1;
-
-        // Line goes from left sclera edge to right sclera edge
         const startX = cx - rx;
         const endX = cx + rx;
-        const currentEndX = startX + (endX - startX) * easeInOut(lineDrawProgress);
+        const currentEndX = lineDrawProgress < 1
+          ? startX + (endX - startX) * easeInOut(lineDrawProgress)
+          : endX;
 
-        if (currentEndX > startX) {
-          // Outer glow
-          const glowGrad = ctx.createLinearGradient(startX, lineY, currentEndX, lineY);
-          glowGrad.addColorStop(0, `rgba(0,245,255,0)`);
-          glowGrad.addColorStop(0.1, `rgba(0,245,255,${0.3 * lineAlpha})`);
-          glowGrad.addColorStop(0.9, `rgba(0,245,255,${0.3 * lineAlpha})`);
-          glowGrad.addColorStop(1, `rgba(0,245,255,0)`);
+        // Line alpha: fully visible while drawing, fades as eye opens past 50%
+        const lineAlpha = eyeOpenProgress > 0.5
+          ? Math.max(0, 1 - (eyeOpenProgress - 0.5) / 0.5) * (1 - fadeProgress)
+          : (1 - fadeProgress);
 
+        if (currentEndX > startX && lineAlpha > 0) {
+          // The line follows the eyelid edges once opening begins
+          const topY = topLidBottom;
+          const bottomY = bottomLidTop;
+
+          // Draw glow on TOP eyelid edge
+          const topGrad = ctx.createLinearGradient(startX, topY, currentEndX, topY);
+          topGrad.addColorStop(0, `rgba(0,245,255,0)`);
+          topGrad.addColorStop(0.05, `rgba(0,245,255,${0.4 * lineAlpha})`);
+          topGrad.addColorStop(0.95, `rgba(0,245,255,${0.4 * lineAlpha})`);
+          topGrad.addColorStop(1, `rgba(0,245,255,0)`);
           ctx.beginPath();
-          ctx.moveTo(startX, lineY);
-          ctx.lineTo(currentEndX, lineY);
-          ctx.lineWidth = 12;
-          ctx.strokeStyle = glowGrad;
-          ctx.shadowBlur = 0;
+          ctx.moveTo(startX, topY);
+          ctx.lineTo(currentEndX, topY);
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = topGrad;
           ctx.stroke();
 
-          // Core bright line
-          const coreGrad = ctx.createLinearGradient(startX, lineY, currentEndX, lineY);
-          coreGrad.addColorStop(0, `rgba(0,245,255,0)`);
-          coreGrad.addColorStop(0.05, `rgba(0,245,255,${lineAlpha})`);
-          coreGrad.addColorStop(0.95, `rgba(0,245,255,${lineAlpha})`);
-          coreGrad.addColorStop(1, `rgba(0,245,255,0)`);
-
+          // Core bright line on top
+          const topCore = ctx.createLinearGradient(startX, topY, currentEndX, topY);
+          topCore.addColorStop(0, `rgba(0,245,255,0)`);
+          topCore.addColorStop(0.05, `rgba(0,245,255,${lineAlpha})`);
+          topCore.addColorStop(0.95, `rgba(0,245,255,${lineAlpha})`);
+          topCore.addColorStop(1, `rgba(0,245,255,0)`);
           ctx.beginPath();
-          ctx.moveTo(startX, lineY);
-          ctx.lineTo(currentEndX, lineY);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = coreGrad;
+          ctx.moveTo(startX, topY);
+          ctx.lineTo(currentEndX, topY);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = topCore;
           ctx.stroke();
 
-          // Leading point glow
+          // Draw glow on BOTTOM eyelid edge (only when opening)
+          if (eyeOpenProgress > 0) {
+            const botGrad = ctx.createLinearGradient(startX, bottomY, currentEndX, bottomY);
+            botGrad.addColorStop(0, `rgba(0,245,255,0)`);
+            botGrad.addColorStop(0.05, `rgba(0,245,255,${0.3 * lineAlpha})`);
+            botGrad.addColorStop(0.95, `rgba(0,245,255,${0.3 * lineAlpha})`);
+            botGrad.addColorStop(1, `rgba(0,245,255,0)`);
+            ctx.beginPath();
+            ctx.moveTo(startX, bottomY);
+            ctx.lineTo(currentEndX, bottomY);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = botGrad;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(startX, bottomY);
+            ctx.lineTo(currentEndX, bottomY);
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = botGrad;
+            ctx.stroke();
+          }
+
+          // Leading point (only while still drawing)
           if (lineDrawProgress < 1) {
-            const ptX = currentEndX;
-            const ptGrad = ctx.createRadialGradient(ptX, lineY, 0, ptX, lineY, 18);
+            const ptGrad = ctx.createRadialGradient(currentEndX, lineY, 0, currentEndX, lineY, 18);
             ptGrad.addColorStop(0, `rgba(255,255,255,${lineAlpha})`);
             ptGrad.addColorStop(0.2, `rgba(0,245,255,${0.9 * lineAlpha})`);
             ptGrad.addColorStop(1, `rgba(0,245,255,0)`);
             ctx.beginPath();
-            ctx.arc(ptX, lineY, 18, 0, Math.PI * 2);
+            ctx.arc(currentEndX, lineY, 18, 0, Math.PI * 2);
             ctx.fillStyle = ptGrad;
             ctx.fill();
           }
