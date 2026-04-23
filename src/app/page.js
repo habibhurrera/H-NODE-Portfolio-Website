@@ -10,7 +10,7 @@ const DigitalEye = dynamic(() => import("@/components/DigitalEye"), { ssr: false
 export default function Home() {
   const [bootPhase, setBootPhase] = useState("idle");
   const [isMobile, setIsMobile] = useState(false);
-  const [introPhase, setIntroPhase] = useState("revealing");
+  const [introPhase, setIntroPhase] = useState("revealing"); // "revealing" | "done"
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -45,10 +45,19 @@ export default function Home() {
         backgroundColor: "#000000",
         overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+
+        {/* Eye hidden until reveal complete, then fades in */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          opacity: introPhase === "done" ? 1 : 0,
+          transition: "opacity 0.6s ease",
+        }}>
           <DigitalEye isBooting={isBooting} />
         </div>
 
+        {/* EyeReveal animation — renders on top, calls onComplete when done */}
         {introPhase === "revealing" && (
           <EyeReveal
             onComplete={() => setIntroPhase("done")}
@@ -57,6 +66,7 @@ export default function Home() {
           />
         )}
 
+        {/* Title */}
         <div style={{
           position: "absolute", bottom: "8%", left: 0, width: "100%",
           display: "flex", flexDirection: "column", alignItems: "center",
@@ -83,6 +93,7 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Button */}
         {bootPhase !== "complete" && (
           <div style={{
             position: "absolute", bottom: "5%", left: 0, width: "100%",
@@ -134,8 +145,18 @@ export default function Home() {
       position: "relative", width: "100%", height: "100vh",
       backgroundColor: "#000000", overflow: "hidden",
     }}>
-      <DigitalEye isBooting={isBooting} />
 
+      {/* Eye hidden until reveal complete, then fades in */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        opacity: introPhase === "done" ? 1 : 0,
+        transition: "opacity 0.6s ease",
+      }}>
+        <DigitalEye isBooting={isBooting} />
+      </div>
+
+      {/* EyeReveal animation on top */}
       {introPhase === "revealing" && (
         <EyeReveal
           onComplete={() => setIntroPhase("done")}
@@ -169,6 +190,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* Title — fades in after reveal */}
       <div style={{
         position: "absolute", bottom: "12%", left: 0, width: "100%",
         display: "flex", flexDirection: "column", alignItems: "center",
@@ -194,6 +216,7 @@ export default function Home() {
         </p>
       </div>
 
+      {/* Button — fades in after reveal */}
       {bootPhase !== "complete" && (
         <div style={{
           position: "absolute", bottom: "6%", left: 0, width: "100%",
