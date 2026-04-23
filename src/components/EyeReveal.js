@@ -32,7 +32,7 @@ export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
     const cy = eyeCenterY || H * 0.46;
     const rx = eyeRadiusX || Math.min(W, H) * 0.3 * 1.6;
     // Vertical half-height of the eye shape
-    const ry = rx * 0.38;
+    const ry = rx * 0.65;
 
     const totalDuration = PHASE_LINE_DRAW + PHASE_LINE_HOLD + PHASE_EYE_OPEN + PHASE_FADE_OUT;
 
@@ -89,8 +89,8 @@ export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
         ctx.lineTo(cx + rx, cy);
         // Upper curve (reversed — right to left)
         ctx.bezierCurveTo(
-          cx + rx * 0.3, cy - ry * openEased * 1.1,
-          cx - rx * 0.3, cy - ry * openEased * 1.1,
+          cx + rx * 0.3, cy - ry * openEased * 1.6,
+          cx - rx * 0.3, cy - ry * openEased * 1.6,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
@@ -107,8 +107,8 @@ export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
         ctx.lineTo(cx + rx, cy);
         // Lower curve (reversed — right to left)
         ctx.bezierCurveTo(
-          cx + rx * 0.3, cy + ry * openEased * 0.7,
-          cx - rx * 0.3, cy + ry * openEased * 0.7,
+          cx + rx * 0.3, cy + ry * openEased * 1.1,
+          cx - rx * 0.3, cy + ry * openEased * 1.1,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
