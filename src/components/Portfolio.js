@@ -133,17 +133,29 @@ export default function Portfolio({ onReset }) {
     return () => { document.body.style.overflow = ""; };
   }, [mobileMenuOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!formState.name || !formState.email || !formState.message) return;
     setFormStatus("sending");
-    const subject = encodeURIComponent(`Project Inquiry from ${formState.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formState.name}\nEmail: ${formState.email}\nService: ${formState.budget}\n\nProject Brief:\n${formState.message}`
-    );
-    // Use location.href — never blocked by browsers unlike window.open()
-    window.location.href = `mailto:habibhurrera@gmail.com?subject=${subject}&body=${body}`;
-    setTimeout(() => setFormStatus("sent"), 500);
+    try {
+      const res = await fetch("https://formspree.io/f/myklbokb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name: formState.name,
+          email: formState.email,
+          service: formState.budget,
+          message: formState.message,
+        }),
+      });
+      if (res.ok) {
+        setFormStatus("sent");
+      } else {
+        setFormStatus("error");
+      }
+    } catch {
+      setFormStatus("error");
+    }
   };
 
   const navLinks = [
@@ -466,7 +478,18 @@ export default function Portfolio({ onReset }) {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00F5FF" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
                   </div>
                   <p className="text-cyan-400 font-[family-name:var(--font-jetbrains)] text-sm uppercase tracking-widest">Message Routed</p>
-                  <p className="text-gray-500 text-sm">Your email client opened with the brief pre-filled. Hit send and I'll respond within 24 hours.</p>
+                  <p className="text-gray-500 text-sm">Brief received. I'll respond within 24 hours.</p>
+                </div>
+              ) : formStatus === "error" ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
+                  <div className="w-12 h-12 rounded-full border border-red-500/30 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                  </div>
+                  <p className="text-red-400 font-[family-name:var(--font-jetbrains)] text-sm uppercase tracking-widest">Transmission Failed</p>
+                  <p className="text-gray-500 text-sm">Something went wrong. Please try WhatsApp or email directly.</p>
+                  <button onClick={() => setFormStatus("idle")} className="text-xs font-[family-name:var(--font-jetbrains)] text-cyan-400 uppercase tracking-widest border border-cyan-500/30 px-4 py-2 hover:border-cyan-500 transition-colors">
+                    Try Again
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-6">
