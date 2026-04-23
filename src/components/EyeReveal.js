@@ -7,7 +7,7 @@ const PHASE_LINE_HOLD = 200;
 const PHASE_EYE_OPEN = 1000;
 const PHASE_FADE_OUT = 400;
 
-export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
+export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX }) {
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const rafRef = useRef(null);
@@ -77,6 +77,9 @@ export default function EyeReveal({ onComplete, eyeCenterY, eyeRadiusX }) {
 
       const alpha = 1 - fadeProgress;
       const openEased = easeOut(openProgress);
+
+      // Report progress to parent for clipping
+      onUpdate && onUpdate({ openAmount: openEased, alpha });
 
       if (alpha > 0) {
         // ── TOP eyelid black mask ──────────────────────────────────────────
