@@ -60,10 +60,10 @@ export default function Home() {
           clipPath: introPhase === "done" ? "none" : (() => {
             const cx = windowSize.w / 2;
             const cy = windowSize.h * 0.46;
-            const rx = Math.min(windowSize.w, windowSize.h) * 0.3 * 1.6;
+            const rx = Math.min(windowSize.w, windowSize.h) * 0.3 * 1.8;
             const ry = rx * 0.65;
             const oa = revealState.openAmount;
-            return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx} ${cy} Z')`;
+            return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.45} ${cy - ry * oa * 1.1}, ${cx + rx * 0.45} ${cy - ry * oa * 1.1}, ${cx + rx} ${cy} C ${cx + rx * 0.45} ${cy + ry * oa * 0.9}, ${cx - rx * 0.45} ${cy + ry * oa * 0.9}, ${cx - rx} ${cy} Z')`;
           })(),
           zIndex: 5,
         }}>
@@ -76,7 +76,7 @@ export default function Home() {
             onComplete={() => setIntroPhase("done")}
             onUpdate={(st) => setRevealState(st)}
             eyeCenterY={windowSize.h * 0.46}
-            eyeRadiusX={Math.min(windowSize.w, windowSize.h) * 0.3 * 1.6}
+            eyeRadiusX={Math.min(windowSize.w, windowSize.h) * 0.3 * 1.8}
           />
         )}
 
@@ -168,10 +168,10 @@ export default function Home() {
         clipPath: introPhase === "done" ? "none" : (() => {
           const cx = windowSize.w / 2;
           const cy = windowSize.h / 2;
-          const rx = windowSize.h * 0.35 * 1.6;
+          const rx = windowSize.h * 0.35 * 1.8;
           const ry = rx * 0.65;
           const oa = revealState.openAmount;
-          return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx} ${cy} Z')`;
+          return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.45} ${cy - ry * oa * 1.1}, ${cx + rx * 0.45} ${cy - ry * oa * 1.1}, ${cx + rx} ${cy} C ${cx + rx * 0.45} ${cy + ry * oa * 0.9}, ${cx - rx * 0.45} ${cy + ry * oa * 0.9}, ${cx - rx} ${cy} Z')`;
         })(),
         zIndex: 5,
       }}>
@@ -184,7 +184,7 @@ export default function Home() {
           onComplete={() => setIntroPhase("done")}
           onUpdate={(st) => setRevealState(st)}
           eyeCenterY={windowSize.h / 2}
-          eyeRadiusX={windowSize.h * 0.35 * 1.6}
+          eyeRadiusX={windowSize.h * 0.35 * 1.8}
         />
       )}
 

@@ -154,12 +154,12 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.fillStyle = halo;
         offscreenCtx.fillRect(0, 0, width, height);
 
-        const ellipseW = R * 1.6;
+        const ellipseW = R * 1.8;
         const ellipseH = R * 0.85;
         offscreenCtx.save();
         offscreenCtx.translate(cx, cy);
 
-        for (let i = 0; i < 7000; i++) {
+        for (let i = 0; i < 8000; i++) {
           const x = (Math.random() * 2 - 1) * ellipseW;
           const y = (Math.random() * 2 - 1) * ellipseH;
           const maxY = (1 - Math.pow(x / ellipseW, 2)) * ellipseH;
@@ -202,9 +202,9 @@ export default function DigitalEye({ isBooting }) {
         offscreenCtx.fillStyle = innerHalo;
         offscreenCtx.fillRect(0, 0, width, height);
 
-        const ellipseW = R * 1.6;
+        const ellipseW = R * 1.8;
         const ellipseH = R * 0.85;
-        const numParticles = 18000;
+        const numParticles = 22000;
 
         offscreenCtx.save();
         offscreenCtx.translate(cx, cy);
