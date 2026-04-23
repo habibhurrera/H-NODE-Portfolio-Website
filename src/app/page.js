@@ -63,7 +63,7 @@ export default function Home() {
             const rx = Math.min(windowSize.w, windowSize.h) * 0.3 * 1.6;
             const ry = rx * 0.65;
             const oa = revealState.openAmount;
-            return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.1}, ${cx + rx * 0.3} ${cy - ry * oa * 1.1}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 0.7}, ${cx - rx * 0.3} ${cy + ry * oa * 0.7}, ${cx - rx} ${cy} Z')`;
+            return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx} ${cy} Z')`;
           })(),
           zIndex: 5,
         }}>
@@ -171,7 +171,7 @@ export default function Home() {
           const rx = windowSize.h * 0.35 * 1.6;
           const ry = rx * 0.65;
           const oa = revealState.openAmount;
-          return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.1}, ${cx + rx * 0.3} ${cy - ry * oa * 1.1}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 0.7}, ${cx - rx * 0.3} ${cy + ry * oa * 0.7}, ${cx - rx} ${cy} Z')`;
+          return `path('M ${cx - rx} ${cy} C ${cx - rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx * 0.3} ${cy - ry * oa * 1.2}, ${cx + rx} ${cy} C ${cx + rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx * 0.3} ${cy + ry * oa * 1.2}, ${cx - rx} ${cy} Z')`;
         })(),
         zIndex: 5,
       }}>

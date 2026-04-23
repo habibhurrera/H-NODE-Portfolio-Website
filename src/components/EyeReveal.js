@@ -48,15 +48,15 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
       if (top) {
         // Upper eyelid curves UP
         ctx.bezierCurveTo(
-          cx - rx * 0.3, cy - ry * openAmount * 1.1,
-          cx + rx * 0.3, cy - ry * openAmount * 1.1,
+          cx - rx * 0.3, cy - ry * openAmount * 1.2,
+          cx + rx * 0.3, cy - ry * openAmount * 1.2,
           cx + rx, cy
         );
       } else {
         // Lower eyelid curves DOWN
         ctx.bezierCurveTo(
-          cx - rx * 0.3, cy + ry * openAmount * 0.7,
-          cx + rx * 0.3, cy + ry * openAmount * 0.7,
+          cx - rx * 0.3, cy + ry * openAmount * 1.2,
+          cx + rx * 0.3, cy + ry * openAmount * 1.2,
           cx + rx, cy
         );
       }
@@ -92,8 +92,8 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
         ctx.lineTo(cx + rx, cy);
         // Upper curve (reversed — right to left)
         ctx.bezierCurveTo(
-          cx + rx * 0.3, cy - ry * openEased * 1.6,
-          cx - rx * 0.3, cy - ry * openEased * 1.6,
+          cx + rx * 0.3, cy - ry * openEased * 1.7,
+          cx - rx * 0.3, cy - ry * openEased * 1.7,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
@@ -110,8 +110,8 @@ export default function EyeReveal({ onComplete, onUpdate, eyeCenterY, eyeRadiusX
         ctx.lineTo(cx + rx, cy);
         // Lower curve (reversed — right to left)
         ctx.bezierCurveTo(
-          cx + rx * 0.3, cy + ry * openEased * 1.1,
-          cx - rx * 0.3, cy + ry * openEased * 1.1,
+          cx + rx * 0.3, cy + ry * openEased * 1.7,
+          cx - rx * 0.3, cy + ry * openEased * 1.7,
           cx - rx, cy
         );
         ctx.lineTo(0, cy);
