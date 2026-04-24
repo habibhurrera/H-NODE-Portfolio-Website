@@ -42,11 +42,10 @@ export default function Home() {
         position: "relative", width: "100%", height: "100dvh",
         backgroundColor: "#000000", overflow: "hidden",
       }}>
-        {/* Eye hidden until reveal completes */}
+        {/* Eye visible during reveal — shows through the gap as lines split */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          opacity: introPhase === "done" ? 1 : 0,
-          transition: introPhase === "done" ? "opacity 0.5s ease" : "none",
+          opacity: 1,
         }}>
           <DigitalEye isBooting={isBooting} />
         </div>
@@ -121,11 +120,10 @@ export default function Home() {
       position: "relative", width: "100%", height: "100vh",
       backgroundColor: "#000000", overflow: "hidden",
     }}>
-      {/* Eye hidden until reveal completes */}
+      {/* Eye visible during reveal — shows through the gap as lines split */}
       <div style={{
-        position: "absolute", inset: 0,
-        opacity: introPhase === "done" ? 1 : 0,
-        transition: introPhase === "done" ? "opacity 0.5s ease" : "none",
+        position: "absolute", inset: 0, pointerEvents: "none",
+        opacity: 1,
       }}>
         <DigitalEye isBooting={isBooting} />
       </div>
