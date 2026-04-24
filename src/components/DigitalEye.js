@@ -55,23 +55,32 @@ export default function DigitalEye({ isBooting }) {
       height = window.innerHeight;
       const dpr = window.devicePixelRatio || 1;
 
+      // On mobile, use screen.height so the canvas covers the full physical screen
+      // instead of being clipped by the browser toolbar
+      const isMobile = width < 768;
+      const canvasHeight = isMobile ? window.screen.height : height;
+
       canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.height = canvasHeight * dpr;
       ctx.scale(dpr, dpr);
       canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
+      canvas.style.height = `${canvasHeight}px`;
 
       offscreenCanvas.width = canvas.width;
       offscreenCanvas.height = canvas.height;
       offscreenCtx.scale(dpr, dpr);
 
-      // Geometry — smaller on mobile so eye fits with text below
-      const isMobile = width < 768;
+      // Use canvasHeight for all drawing so everything covers the full canvas
+      height = canvasHeight;
+
+      // Eye stays centered in the visible viewport, not the extended canvas
+      const visibleHeight = window.innerHeight;
       cx = width / 2;
-      cy = isMobile ? height * 0.38 : height / 2;
-      R = isMobile ? Math.min(width * 0.42, height * 0.32) : height * 0.35;
+      cy = isMobile ? visibleHeight * 0.46 : visibleHeight / 2;
+
+      R = isMobile ? Math.min(width, visibleHeight) * 0.3 : visibleHeight * 0.35;
       r_pupil = R * 0.28;
-      r_iris = R * 0.85;
+      r_iris = R * 0.75;
 
       irisRings = [];
       const numRings = 10;
@@ -119,11 +128,13 @@ export default function DigitalEye({ isBooting }) {
       rimCtx.scale(dpr, dpr);
       rimCtx.translate(rimSize / 2, rimSize / 2);
       rimCtx.fillStyle = "rgba(255, 255, 255, 0.9)";
-      rimCtx.font = "6px monospace";
+      rimCtx.font = isMobile ? "4px monospace" : "6px monospace";
       rimCtx.textBaseline = "middle";
       rimCtx.textAlign = "center";
 
-      const rimTexts = ["0xA4F1", "SCAN_ID:77B", "RET:0.97", "BIO:9C3F", "SYS:OK", "0x00FF", "V:2.4", "LINK:UP", "NET:SECURE"];
+      const rimTexts = isMobile
+        ? ["0xA4F1", "SYS:OK", "SCAN:77B", "BIO:9C3F", "LINK:UP", "V:2.4"]
+        : ["0xA4F1", "SCAN_ID:77B", "RET:0.97", "BIO:9C3F", "SYS:OK", "0x00FF", "V:2.4", "LINK:UP", "NET:SECURE"];
       const rimAngleStep = (Math.PI * 2) / rimTexts.length;
       rimTexts.forEach((text, i) => {
         rimCtx.save();
@@ -136,61 +147,107 @@ export default function DigitalEye({ isBooting }) {
       offscreenCtx.fillStyle = "#000000";
       offscreenCtx.fillRect(0, 0, width, height);
 
-      // Desktop-quality sclera for all screen sizes
-      const outerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.7, cx, cy, r_iris * 2.2);
-      outerHalo.addColorStop(0, "rgba(0, 200, 255, 0.12)");
-      outerHalo.addColorStop(0.4, "rgba(0, 180, 255, 0.07)");
-      outerHalo.addColorStop(1, "rgba(0, 180, 255, 0)");
-      offscreenCtx.fillStyle = outerHalo;
-      offscreenCtx.fillRect(0, 0, width, height);
+      if (isMobile) {
+        const halo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.9, cx, cy, r_iris * 1.6);
+        halo.addColorStop(0, "rgba(0, 180, 255, 0.05)");
+        halo.addColorStop(1, "rgba(0, 180, 255, 0)");
+        offscreenCtx.fillStyle = halo;
+        offscreenCtx.fillRect(0, 0, width, height);
 
-      const innerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.85, cx, cy, r_iris * 1.2);
-      innerHalo.addColorStop(0, "rgba(0, 245, 255, 0.18)");
-      innerHalo.addColorStop(1, "rgba(0, 245, 255, 0)");
-      offscreenCtx.fillStyle = innerHalo;
-      offscreenCtx.fillRect(0, 0, width, height);
+        const ellipseW = R * 1.7;
+        const ellipseH = R * 0.75;
+        offscreenCtx.save();
+        offscreenCtx.translate(cx, cy);
 
-      const ellipseW = R * 1.6;
-      const ellipseH = R * 0.85;
-      offscreenCtx.save();
-      offscreenCtx.translate(cx, cy);
-
-      for (let i = 0; i < 18000; i++) {
-        const x = (Math.random() * 2 - 1) * ellipseW;
-        const y = (Math.random() * 2 - 1) * ellipseH;
-        const maxY = (1 - Math.pow(x / ellipseW, 2)) * ellipseH;
-        if (Math.abs(y) > maxY) continue;
-        const distFromCenter = Math.sqrt(x * x + y * y);
-        if (distFromCenter < r_iris) continue;
-        const edgeDist = distFromCenter - r_iris;
-        const maxDist = ellipseW - r_iris;
-        const normalizedDist = Math.max(0, Math.min(1, edgeDist / maxDist));
-        const keepProb = 0.82 - (0.5 * normalizedDist);
-        if (Math.random() > keepProb) continue;
-        const isDot = Math.random() > 0.25;
-        const size = isDot ? Math.max(0.8, 5.5 * (1 - normalizedDist * 0.7)) : (5 + Math.random() * 2);
-        const opacity = 0.35 + 0.55 * (1 - normalizedDist);
-        const scleraColors = ["#00F5FF", "#00E8FF", "#00C8D8", "#00AABB", "#00D5E8", "#0090A0", "#007080"];
-        offscreenCtx.globalAlpha = opacity;
-        offscreenCtx.fillStyle = scleraColors[Math.floor(Math.random() * scleraColors.length)];
-        if (isDot) {
-          if (size > 2.5) {
-            offscreenCtx.shadowBlur = size * 3;
-            offscreenCtx.shadowColor = "#00F5FF";
+        for (let i = 0; i < 8000; i++) {
+          const x = (Math.random() * 2 - 1) * ellipseW;
+          const y = (Math.random() * 2 - 1) * ellipseH;
+          const maxY = (1 - Math.pow(x / ellipseW, 2)) * ellipseH;
+          if (Math.abs(y) > maxY) continue;
+          const distFromCenter = Math.sqrt(x * x + y * y);
+          if (distFromCenter < r_iris) continue;
+          const edgeDist = distFromCenter - r_iris;
+          const maxDist = ellipseW - r_iris;
+          const normalizedDist = Math.max(0, Math.min(1, edgeDist / maxDist));
+          const keepProb = 0.6 - (0.45 * normalizedDist);
+          if (Math.random() > keepProb) continue;
+          const isDot = Math.random() > 0.35;
+          const size = isDot ? Math.max(0.5, 3.5 * (1 - normalizedDist)) : (5 + Math.random());
+          const opacity = 0.2 + 0.35 * (1 - normalizedDist);
+          const scleraColors = ["#00C8D8", "#00AABB", "#0090A0", "#007080", "#006070"];
+          offscreenCtx.globalAlpha = opacity;
+          offscreenCtx.fillStyle = scleraColors[Math.floor(Math.random() * scleraColors.length)];
+          if (isDot) {
+            offscreenCtx.beginPath();
+            offscreenCtx.arc(x, y, size, 0, Math.PI * 2);
+            offscreenCtx.fill();
           } else {
-            offscreenCtx.shadowBlur = 0;
+            offscreenCtx.font = `${size}px monospace`;
+            offscreenCtx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
           }
-          offscreenCtx.beginPath();
-          offscreenCtx.arc(x, y, size, 0, Math.PI * 2);
-          offscreenCtx.fill();
-          offscreenCtx.shadowBlur = 0;
-        } else {
-          offscreenCtx.font = `${size}px monospace`;
-          offscreenCtx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
         }
+        offscreenCtx.restore();
+
+      } else {
+        const outerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.7, cx, cy, r_iris * 2.2);
+        outerHalo.addColorStop(0, "rgba(0, 200, 255, 0.12)");
+        outerHalo.addColorStop(0.4, "rgba(0, 180, 255, 0.07)");
+        outerHalo.addColorStop(1, "rgba(0, 180, 255, 0)");
+        offscreenCtx.fillStyle = outerHalo;
+        offscreenCtx.fillRect(0, 0, width, height);
+
+        const innerHalo = offscreenCtx.createRadialGradient(cx, cy, r_iris * 0.85, cx, cy, r_iris * 1.2);
+        innerHalo.addColorStop(0, "rgba(0, 245, 255, 0.18)");
+        innerHalo.addColorStop(1, "rgba(0, 245, 255, 0)");
+        offscreenCtx.fillStyle = innerHalo;
+        offscreenCtx.fillRect(0, 0, width, height);
+
+        const ellipseW = R * 1.7;
+        const ellipseH = R * 0.75;
+        const numParticles = 22000;
+
+        offscreenCtx.save();
+        offscreenCtx.translate(cx, cy);
+
+        for (let i = 0; i < numParticles; i++) {
+          const x = (Math.random() * 2 - 1) * ellipseW;
+          const y = (Math.random() * 2 - 1) * ellipseH;
+          const maxY = (1 - Math.pow(x / ellipseW, 2)) * ellipseH;
+          if (Math.abs(y) > maxY) continue;
+          const distFromCenter = Math.sqrt(x * x + y * y);
+          if (distFromCenter < r_iris) continue;
+          const edgeDist = distFromCenter - r_iris;
+          const maxDist = ellipseW - r_iris;
+          const normalizedDist = Math.max(0, Math.min(1, edgeDist / maxDist));
+          const keepProb = 0.82 - (0.5 * normalizedDist);
+          if (Math.random() > keepProb) continue;
+          const isDot = Math.random() > 0.25;
+          const size = isDot ? Math.max(0.8, 5.5 * (1 - normalizedDist * 0.7)) : (5 + Math.random() * 2);
+          const opacity = 0.35 + 0.55 * (1 - normalizedDist);
+          const scleraColors = ["#00F5FF", "#00E8FF", "#00C8D8", "#00AABB", "#00D5E8", "#0090A0", "#007080"];
+          const color = scleraColors[Math.floor(Math.random() * scleraColors.length)];
+          offscreenCtx.globalAlpha = opacity;
+          offscreenCtx.fillStyle = color;
+          if (isDot) {
+            if (size > 2.5) {
+              offscreenCtx.shadowBlur = size * 3;
+              offscreenCtx.shadowColor = "#00F5FF";
+            } else {
+              offscreenCtx.shadowBlur = 0;
+            }
+            offscreenCtx.beginPath();
+            offscreenCtx.arc(x, y, size, 0, Math.PI * 2);
+            offscreenCtx.fill();
+            offscreenCtx.shadowBlur = 0;
+          } else {
+            offscreenCtx.font = `${size}px monospace`;
+            offscreenCtx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
+          }
+        }
+
+        offscreenCtx.globalAlpha = 1;
+        offscreenCtx.restore();
       }
-      offscreenCtx.globalAlpha = 1;
-      offscreenCtx.restore();
     };
 
     const render = (time) => {
@@ -202,7 +259,8 @@ export default function DigitalEye({ isBooting }) {
       ctx.drawImage(offscreenCanvas, 0, 0);
       ctx.restore();
 
-      const glowIntensity = 0.14;
+      const isMobile = width < 768;
+      const glowIntensity = isMobile ? 0.06 : 0.14;
       const innerGlow = ctx.createRadialGradient(
         cx + currentX, cy + currentY, r_pupil,
         cx, cy, r_pupil + (r_iris - r_pupil) * 0.4
@@ -212,12 +270,14 @@ export default function DigitalEye({ isBooting }) {
       ctx.fillStyle = innerGlow;
       ctx.fillRect(0, 0, width, height);
 
-      const pulse = 0.04 + Math.sin(time * 0.001) * 0.02;
-      const outerGlow = ctx.createRadialGradient(cx, cy, r_iris * 0.9, cx, cy, r_iris * 1.5);
-      outerGlow.addColorStop(0, `rgba(0, 245, 255, ${pulse})`);
-      outerGlow.addColorStop(1, "transparent");
-      ctx.fillStyle = outerGlow;
-      ctx.fillRect(0, 0, width, height);
+      if (!isMobile) {
+        const pulse = 0.04 + Math.sin(time * 0.001) * 0.02;
+        const outerGlow = ctx.createRadialGradient(cx, cy, r_iris * 0.9, cx, cy, r_iris * 1.5);
+        outerGlow.addColorStop(0, `rgba(0, 245, 255, ${pulse})`);
+        outerGlow.addColorStop(1, "transparent");
+        ctx.fillStyle = outerGlow;
+        ctx.fillRect(0, 0, width, height);
+      }
 
       ctx.save();
       ctx.translate(cx, cy);
