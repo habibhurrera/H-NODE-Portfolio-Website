@@ -71,9 +71,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Title + subtitle — bottom center, same as desktop */}
+      {/* Title + subtitle */}
       <div style={{
-        position: "absolute", bottom: "12%", left: 0, width: "100%",
+        position: "absolute",
+        bottom: "clamp(80px, 14%, 120px)",
+        left: 0, width: "100%",
         display: "flex", flexDirection: "column", alignItems: "center",
         zIndex: 10, pointerEvents: "none",
         opacity: introPhase === "done" && !isBooting ? 1 : 0,
@@ -89,15 +91,17 @@ export default function Home() {
         <p style={{
           fontFamily: "var(--font-jetbrains)", color: "rgba(0,245,255,0.6)",
           fontSize: "clamp(8px, 2vw, 16px)", letterSpacing: "0.3em",
-          textTransform: "uppercase", margin: "0 0 2.5rem 0",
+          textTransform: "uppercase", margin: 0,
           textShadow: "0 0 10px rgba(0,0,0,0.8)", textAlign: "center",
         }}>Muhammad Hurrera // Systems Architect</p>
       </div>
 
-      {/* Initialize button — bottom center */}
+      {/* Initialize button */}
       {bootPhase !== "complete" && (
         <div style={{
-          position: "absolute", bottom: "6%", left: 0, width: "100%",
+          position: "absolute",
+          bottom: "clamp(20px, 5%, 40px)",
+          left: 0, width: "100%",
           display: "flex", justifyContent: "center", zIndex: 11,
           opacity: introPhase === "done" && !isBooting ? 1 : 0,
           transition: "opacity 0.8s ease",

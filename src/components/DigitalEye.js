@@ -65,10 +65,11 @@ export default function DigitalEye({ isBooting }) {
       offscreenCanvas.height = canvas.height;
       offscreenCtx.scale(dpr, dpr);
 
-      // Same geometry on all screen sizes — desktop style
+      // Geometry — smaller on mobile so eye fits with text below
+      const isMobile = width < 768;
       cx = width / 2;
-      cy = height / 2;
-      R = height * 0.35;
+      cy = isMobile ? height * 0.38 : height / 2;
+      R = isMobile ? Math.min(width * 0.42, height * 0.32) : height * 0.35;
       r_pupil = R * 0.28;
       r_iris = R * 0.85;
 
