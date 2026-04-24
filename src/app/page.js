@@ -32,7 +32,10 @@ export default function Home() {
   const isBooting = bootPhase !== "idle";
 
   if (bootPhase === "finished") {
-    return <Portfolio onReset={() => setBootPhase("idle")} />;
+    return <Portfolio onReset={() => {
+      setIntroPhase("revealing");
+      setBootPhase("idle");
+    }} />;
   }
 
   // —— MOBILE LAYOUT ——
